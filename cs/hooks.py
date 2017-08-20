@@ -16,7 +16,7 @@ app_license = "MIT"
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/cs/css/cs.css"
-# app_include_js = "/assets/cs/js/cs.js"
+app_include_js = "/assets/cs/js/cs.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/cs/css/cs.css"
@@ -73,18 +73,6 @@ app_license = "MIT"
 #
 # has_permission = {
 # 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
-
-# Document Events
-# ---------------
-# Hook on document methods and events
-
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-#	}
 # }
 
 # Scheduled Tasks

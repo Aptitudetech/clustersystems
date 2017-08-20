@@ -9,5 +9,5 @@ from frappe.model.document import Document
 
 class ProcessQuoteSetup(Document):
 	def validate( self ):
-    	for field in ['auto_create_project', 'auto_assign_dn_to']:
-    		frappe.defaults.add_global_default(field, self.get(field))
+	    	for field in ['auto_create_project', 'auto_assign_dn_to']:
+    			frappe.defaults.add_global_default(field, self.get(field))
