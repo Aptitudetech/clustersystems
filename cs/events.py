@@ -11,12 +11,20 @@ def get_project_autoname( doc, new_name ):
     return autoname
 
 @frappe.whitelist()
-def process_quote(quote, delivery_date=None):
+def process_quote(quote, customer_group=None, territory=None, delivery_date=None):
+    from erpnext.crm.doctype.lead.lead import make_customer
     from erpnext.selling.doctype.quotation.quotation import make_sales_order
     from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note
     from frappe.desk.form import assign_to
 
     doc = frappe.get_doc('Quotation', quote)
+
+    if doc.lead and not frappe.db.get_value("Customer", {"lead_name": doc.lead}):
+        customer = make_customer( doc.lead )
+        customer.customer_group = customer_group
+        customer.territory = territory
+        customer.flags.ignore_mandatory = True
+        customer.flags.ignore_permissions = True
 
     so = make_sales_order( quote )
     so.delivery_date = delivery_date
@@ -78,3 +86,8 @@ def process_quote(quote, delivery_date=None):
                 assign_dn_to
             )
         )
+
+def quotation_onload(doc, handler=None):
+    if doc.lead:
+        customer = frappe.db.get_value("Customer", {"lead_name": doc.lead})
+        doc.get("__onload").has_customer = customer

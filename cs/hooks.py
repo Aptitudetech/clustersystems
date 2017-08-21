@@ -75,6 +75,14 @@ app_include_js = "/assets/cs/js/cs.js"
 # 	"Event": "frappe.desk.doctype.event.event.has_permission",
 # }
 
+doc_events = {
+    "Quotation": {
+        "onload": [
+            "cs.events.quotation_onload"
+        ]
+    }
+}
+
 # Scheduled Tasks
 # ---------------
 
