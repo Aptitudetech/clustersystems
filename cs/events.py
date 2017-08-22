@@ -25,6 +25,7 @@ def process_quote(quote, customer_group=None, territory=None, delivery_date=None
         customer.territory = territory
         customer.flags.ignore_mandatory = True
         customer.flags.ignore_permissions = True
+        customer.insert()
 
     so = make_sales_order( quote )
     so.delivery_date = delivery_date
