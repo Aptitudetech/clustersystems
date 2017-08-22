@@ -116,14 +116,3 @@ doc_events = {
 # 	"frappe.desk.doctype.event.event.get_events": "cs.event.get_events"
 # }
 
-fixtures = [
-    {
-        'dt': 'Custom Field',
-        'filters': {
-            'fieldname': ['in', [
-                "Project-template_type",
-                "Quotation-template_type"
-            ]]
-        }
-    }
-]
