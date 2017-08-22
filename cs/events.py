@@ -49,7 +49,7 @@ def process_quote(quote, customer_group=None, territory=None, delivery_date=None
         new_project.flags.ignore_permissions = True
         new_project.insert()
 
-        for task_name in frappe.get_all("Task", filters={"project": project_name}):
+        for task_name in frappe.get_all("Task", filters={"project": base_project.name}):
             task = frappe.get_doc("Task", task_name)
             new_task = frappe.copy_doc( task, True )
             new_task.project = new_project.name
