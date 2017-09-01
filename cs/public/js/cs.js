@@ -99,3 +99,11 @@ frappe.ui.form.on('Quotation', {
         }
     }
 });
+
+frappe.ui.form.on('Sales Invoice', {
+    'refresh': function(){
+        if (frm.doc.__islocal && frm.doc.is_return){
+            frm.set_value('naming_series', 'SINV-RET');
+        }
+    }
+})

@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import frappe
 import frappe.defaults
 
-from frappe.jobs.background_jobs import enqueue
+from frappe.utils.background_jobs import enqueue
 
 
 def get_project_autoname( doc, new_name ):
