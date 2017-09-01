@@ -76,9 +76,25 @@ app_include_js = "/assets/cs/js/cs.js"
 # }
 
 doc_events = {
+    "Lead": {
+        "onload": [
+            "cs.events.on_lead_onload"
+        ],
+        "validate": [
+            "cs.events.on_lead_validate",
+        ],
+        "on_update": [
+            "cs.events.on_lead_on_update"
+        ]
+    },
     "Quotation": {
         "onload": [
             "cs.events.quotation_onload"
+        ]
+    },
+    "Delivery Note": {
+        "submit": [
+            "cs.events.on_delivery_note_submit"
         ]
     }
 }
@@ -86,23 +102,23 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
+scheduler_events = {
 # 	"all": [
 # 		"cs.tasks.all"
 # 	],
 # 	"daily": [
 # 		"cs.tasks.daily"
 # 	],
-# 	"hourly": [
-# 		"cs.tasks.hourly"
-# 	],
+	"hourly": [
+		"cs.tasks.hourly"
+],
 # 	"weekly": [
 # 		"cs.tasks.weekly"
 # 	]
 # 	"monthly": [
 # 		"cs.tasks.monthly"
 # 	]
-# }
+}
 
 # Testing
 # -------
