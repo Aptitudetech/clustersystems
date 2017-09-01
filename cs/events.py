@@ -39,9 +39,9 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
     so.save()
 
     if frappe.defaults.get_global_default( 'auto_create_project' ):
-        filters = {'project_type': 'Template', 'customer': None}
+        filters = {'project_type': 'Template'}
         if frappe.db.exists( 'Project', {'project_type': 'Template', 
-            'template_type': doc.template_type, 'customer': None } ):
+            'template_type': doc.template_type } ):
             filters['template_type'] = doc.template_type
         base_project = frappe.get_doc('Project', filters)
         project_name = " / ".join([
@@ -50,6 +50,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
         ])
         new_project = frappe.copy_doc( base_project, True )
         new_project.customer = doc.customer
+        new_project.project_type == "External"
         new_project.autoname = get_project_autoname( new_project, project_name )
         new_project.flags.ignore_mandatory = True
         new_project.flags.ignore_permissions = True
