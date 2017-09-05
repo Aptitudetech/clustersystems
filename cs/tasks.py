@@ -18,7 +18,7 @@ def get_standard_reply( template_name, doc, language=None  ):
     }
 
 def get_file_name( fname ):
-    '''Returna a filename from an attachment link''''
+    '''Return a filename from an attachment link'''
 
 
 def send_appointment( doc, standard_reply ):

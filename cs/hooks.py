@@ -80,11 +80,11 @@ doc_events = {
         "onload": [
             "cs.events.on_lead_onload"
         ],
-        "validate": [
-            "cs.events.on_lead_validate",
+        "oninsert": [
+            "cs.events.on_lead_oninsert",
         ],
-        "on_update": [
-            "cs.events.on_lead_on_update"
+        "onupdate": [
+            "cs.events.on_lead_onupdate"
         ]
     },
     "Quotation": {
