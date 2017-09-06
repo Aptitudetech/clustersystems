@@ -39,7 +39,7 @@ def send_appointment( doc, standard_reply ):
 def send_appointment_schedule( lead ):
     '''Sends a new appointment schedule'''
 
-    lead = frappe.get_doc('Lead', doc.lead)
+    lead = frappe.get_doc('Lead', lead)
     settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
     if lead.email_id and settings.lead_appointment_enabled and settings.new_appointment_reply:
         send_appointment( lead, settings.new_appointment_reply )
@@ -143,9 +143,9 @@ def update_appointment_event( lead ):
     doc = frappe.get_doc('Event', {
         'ref_type': 'Lead',
         'ref_name': lead.name,
-        '#color': 'orange',
+        'color': 'orange',
         'subject': _('Appointment Schedule for {0} : {1} / {2}').format(
-            _('Lead'), lead, lead.lead_name
+            _('Lead'), lead.name, lead.lead_name
         )
     })
     doc.update({

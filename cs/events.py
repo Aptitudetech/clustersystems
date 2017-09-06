@@ -152,7 +152,7 @@ def on_lead_oninsert(doc, handler=None):
 def on_lead_onupdate(doc, handler=None):
     '''Updates the appointment event and sends the update by email'''
 
-    if not frappe.db.exists("Event", {"ref_type": doc.doctype, "ref_name": doc.name}):
+    if not frappe.db.exists("Event", {"ref_type": doc.doctype, "ref_name": doc.name, "color": "orange"}):
         on_lead_oninsert(doc, handler)
     else:
         onload = doc.get('__onload') or frappe._dict()
