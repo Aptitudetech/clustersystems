@@ -163,8 +163,8 @@ def on_lead_onupdate(doc, handler=None):
                 tasks.update_appointment_event( doc.name )
                 #enqueue( 'cs.tasks.send_appointment_update', doc.name )
                 #enqueue( 'cs.tasks.update_appointment_event', doc.name )
-                onload.original_appointment_date = doc.appointment_date
-                onload.original_appointment_location = doc.appointment_location
+                onload["original_appointment_date"] = doc.appointment_date
+                onload["original_appointment_location"] = doc.appointment_location
 
 
 def on_delivery_note_submit(doc, handler):

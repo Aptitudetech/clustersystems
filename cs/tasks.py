@@ -27,8 +27,8 @@ def send_appointment( doc, standard_reply ):
     email.make(
         'Lead',
         doc.name,
-        reply['subject'],
         reply['message'],
+        reply['subject'],
         sender = doc.modified_by,
         recipients = doc.email_id,
         send_email = True
@@ -66,8 +66,8 @@ def send_invoice_to_customer( invoice_name ):
         email.make(
             'Sales Invoice',
             invoice_name,
-            reply['subject'],
             reply['message'],
+            reply['subject'],
             sender = invoice.modified_by,
             recipients = invoice.contact_email,
             send_email = True,
@@ -122,7 +122,7 @@ def create_appointment_event( lead ):
         'send_reminder': 1,
         'starts_on': lead.appointment_date,
         'color': 'orange',
-        'description': "\n".join([
+        'description': "<br>".join([
             _('Appointment Schedule for {0} : {1} / {2}').format(
                 _('Lead'), lead.name, lead.lead_name
             ),
@@ -149,9 +149,10 @@ def update_appointment_event( lead ):
         )
     })
     doc.update({
-        'description': "\n".join([
+        'starts_on': lead.appointment_date,
+        'description': "<br>".join([
             _('Appointment Schedule for {0} : {1} / {2}').format(
-                _('Lead'), lead, lead.lead_name
+                _('Lead'), lead.name, lead.lead_name
             ),
             _('Scheduled to: {0}').format( lead.appointment_date ),
             _('On the Location:'),
@@ -189,8 +190,8 @@ def send_wellcome_email( doctype, name ):
         email.make(
             doctype,
             name,
-            reply['subject'],
             reply['message'],
+            reply['subject'],
             sender=doc.modified_by,
             recipients = invoice.contact_email,
             send_email = True,
