@@ -116,7 +116,7 @@ def create_appointment_event( lead ):
     doc = frappe.new_doc('Event')
     doc.update({
         'subject': _('Appointment Schedule for {0} : {1} / {2}').format(
-            _('Lead'), lead, lead.lead_name
+            _('Lead'), lead.name, lead.lead_name
         ),
         'event_type': 'Public',
         'send_reminder': 1,
@@ -124,7 +124,7 @@ def create_appointment_event( lead ):
         'color': 'orange',
         'description': "\n".join([
             _('Appointment Schedule for {0} : {1} / {2}').format(
-                _('Lead'), lead, lead.lead_name
+                _('Lead'), lead.name, lead.lead_name
             ),
             _('Scheduled to: {0}').format( lead.appointment_date ),
             _('On the Location:'),
