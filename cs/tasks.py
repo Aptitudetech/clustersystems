@@ -2,6 +2,8 @@
 
 from __future__ import unicode_literals
 
+from datetime import timedelta
+
 import frappe
 from frappe import _
 from frappe.core.doctype.communication import email
@@ -99,7 +101,7 @@ def appointment_reminder():
     for reminder in reminders:
         _next = add_to_date( now_date, hours=reminder.hours_before )
         # Move the minutes to the last possible moment in the hour
-        _next.minute, _next.seconds = 59, 59
+        _next = _next + timedelta(minutes=59 - _next.minute, seconds=59 - _next.seconds)
         for lead_name in frappe.get_all( 'Lead', filters={'appointment_date': ['beetween', now_date, _next]} ):
             lead = frappe.get_doc( 'Lead', lead_name )
             # Just send the appointment reminder in the first time that the appointment 
