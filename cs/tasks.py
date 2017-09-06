@@ -121,7 +121,7 @@ def create_appointment_event( lead ):
         'event_type': 'Public',
         'send_reminder': 1,
         'starts_on': lead.appointment_date,
-        'color': '#ffb868',
+        'color': 'orange',
         'description': "\n".join([
             _('Appointment Schedule for {0} : {1} / {2}').format(
                 _('Lead'), lead, lead.lead_name
@@ -143,7 +143,7 @@ def update_appointment_event( lead ):
     doc = frappe.get_doc('Event', {
         'ref_type': 'Lead',
         'ref_name': lead.name,
-        '#color': '#ffb868',
+        '#color': 'orange',
         'subject': _('Appointment Schedule for {0} : {1} / {2}').format(
             _('Lead'), lead, lead.lead_name
         )
