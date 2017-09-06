@@ -143,7 +143,7 @@ def on_lead_validate(doc, handler):
         if not frappe.db.exists("ToDo", {
             "doctype": "Lead",
             "name": doc.name,
-            "owner": doc.assign_to
+            "owner": doc.contact_by
         }):
             assign_to.add({
                 'assign_to': doc.contact_by,
