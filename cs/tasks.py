@@ -7,6 +7,8 @@ from frappe import _
 from frappe.core.doctype.communication import email
 from frappe.utils import now_datetime, add_to_date, get_datetime
 from frappe.utils.file_manager import get_file
+from frappe.contacts.doctype.contact.contact import get_default_contact
+
 
 def get_standard_reply( template_name, doc, language=None  ):
     '''Returns the processed HTML of a standard reply with the given doc'''
@@ -16,10 +18,7 @@ def get_standard_reply( template_name, doc, language=None  ):
         'subject': frappe.render_template( _(standard_reply.subject, language), doc ),
         'message': frappe.render_template( _(standard_reply.response, language), doc)
     }
-
-def get_file_name( fname ):
-    '''Return a filename from an attachment link'''
-
+    
 
 def send_appointment( doc, standard_reply ):
     '''Sends any appointment communication and attach the communication to the Lead'''
@@ -34,6 +33,7 @@ def send_appointment( doc, standard_reply ):
         recipients = [ doc.email_id ],
         send_email = True
     )
+
 
 def send_appointment_schedule( lead ):
     '''Sends a new appointment schedule'''
@@ -132,6 +132,7 @@ def create_appointment_event( lead ):
     })
     doc.insert()
 
+
 def update_appointment_event( lead ):
     '''Update an apppointment event in the calendar'''
 
@@ -155,6 +156,45 @@ def update_appointment_event( lead ):
         ])  
     })
     doc.save()
+
+
+def send_wellcome_email( doctype, name ):
+    doc = frappe.get_doc(doctype, name)
+
+    if doctype == "Customer":
+        if doc.lead_name:
+            email = frappe.db.get_value("Lead", doc.lead_name, "email_id")
+        else:
+            email = get_default_contact( doctype, name )
+            if email:
+                email = email.get("email_id")
+    else:
+        email = doc.get('email_id')
+
+    attachments = []
+    for attachment in settings.wellcome_attachments:
+        fname, fcontent = get_file( attachment.attachment )
+        attachments.append({
+            'fname': fname,
+            'fcontent': fcontent
+        })
+
+    if email:
+        settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
+        reply = get_standard_reply( settings.wellcome_reply, doc )
+        email.make(
+            doctype,
+            name,
+            reply['subject'],
+            reply['message'],
+            sender=doc.modified_by,
+            recipients = [ invoice.contact_email ],
+            send_email = True,
+            print_html = True,
+            print_format = settings.invoice_print_format,
+            attachments = attachments
+        )
+        
 
 
 def hourly():

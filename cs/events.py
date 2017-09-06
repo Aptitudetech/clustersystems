@@ -103,6 +103,10 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
             )
         )
 
+    settings = frappe.get_doc("Cluster System Settings", "Cluster System Settings")
+    if settings.send_wellcome_email and settings.wellcome_reply:
+        enqueue( 'cs.tasks.send_wellcome_email', doc.quotation_to, doc.lead or doc.customer )
+
 
 def quotation_onload(doc, handler=None):
     if doc.lead:
@@ -121,6 +125,17 @@ def on_lead_onload(doc, handler=None):
     else:
         onload = doc.get('__onload')
         onload.original_appointment_date, onload.original_appointment_location = None, None
+
+
+def on_lead_validate(doc, handler):
+    '''Automatically define the appointment location and asign next contact by'''
+    from frappe.contacts.doctype.address.address import (get_default_address,
+        get_address_display)
+
+    if doc.company and doc.appointment_date and not doc.appointment_location:
+        address = get_default_address('Company', doc.company)
+        address_display = get_address_display(address)
+        doc.appointment_location = address_display
 
 
 def on_lead_oninsert(doc, handler=None):

@@ -80,6 +80,9 @@ doc_events = {
         "onload": [
             "cs.events.on_lead_onload"
         ],
+        "validate": [
+            "cs.events.on_lead_validate"
+        ],
         "oninsert": [
             "cs.events.on_lead_oninsert",
         ],
