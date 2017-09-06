@@ -154,8 +154,8 @@ def on_lead_onupdate(doc, handler=None):
     else:
         onload = doc.get('__onload')
         if doc.appointment_date and \
-            ( onload.original_appointment_date != doc.appointment_date or 
-            onload.original_appointment_location != doc.appointment_location ):
+            ( onload.get("original_appointment_date") != doc.appointment_date or 
+            onload.get("original_appointment_location") != doc.appointment_location ):
                 enqueue( 'cs.tasks.send_appointment_update', doc.name )
                 enqueue( 'cs.tasks.update_appointment_event', doc.name )
                 onload.original_appointment_date = doc.appointment_date
