@@ -170,13 +170,15 @@ def send_wellcome_email( doctype, name ):
 
     if doctype == "Customer":
         if doc.lead_name:
-            email = frappe.db.get_value("Lead", doc.lead_name, "email_id")
+            email_id = frappe.db.get_value("Lead", doc.lead_name, "email_id")
         else:
-            email = get_default_contact( doctype, name )
-            if email:
-                email = email.get("email_id")
+            email_id = get_default_contact( doctype, name )
+            if email_id:
+                email_id = email_id.get("email_id")
     else:
-        email = doc.get('email_id')
+        email_id = doc.get('email_id')
+
+    settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
 
     attachments = []
     for attachment in settings.wellcome_attachments:
@@ -186,8 +188,7 @@ def send_wellcome_email( doctype, name ):
             'fcontent': fcontent
         })
 
-    if email:
-        settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
+    if email_id:
         reply = get_standard_reply( settings.wellcome_reply, doc )
         email.make(
             doctype,

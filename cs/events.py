@@ -50,7 +50,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
         ])
         new_project = frappe.copy_doc( base_project, True )
         new_project.customer = doc.customer
-        new_project.project_type == "External"
+        new_project.project_type = "External"
         new_project.autoname = get_project_autoname( new_project, project_name )
         new_project.flags.ignore_mandatory = True
         new_project.flags.ignore_permissions = True
@@ -105,7 +105,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 
     settings = frappe.get_doc("Cluster System Settings", "Cluster System Settings")
     if settings.send_wellcome_email and settings.wellcome_reply:
-        tasks.send_wellcome_email( doc.quotation_to, doc.lead or doc.customer )
+        tasks.send_wellcome_email( doc.doctype, doc.name )
         #enqueue( 'cs.tasks.send_wellcome_email', doc.quotation_to, doc.lead or doc.customer )
 
 
@@ -141,9 +141,10 @@ def on_lead_validate(doc, handler):
 
     if not doc.get('__islocal') and doc.get('contact_by'):
         if not frappe.db.exists("ToDo", {
-            "doctype": "Lead",
-            "name": doc.name,
-            "owner": doc.contact_by
+            "reference_type": "Lead",
+            "reference_name": doc.name,
+            "owner": doc.contact_by,
+            "status": "Open"
         }):
             assign_to.add({
                 'assign_to': doc.contact_by,
