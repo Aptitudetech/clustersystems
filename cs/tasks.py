@@ -30,7 +30,7 @@ def send_appointment( doc, standard_reply ):
         reply['subject'],
         reply['message'],
         sender = doc.modified_by,
-        recipients = [ doc.email_id ],
+        recipients = doc.email_id,
         send_email = True
     )
     frappe.db.commit()
@@ -69,7 +69,7 @@ def send_invoice_to_customer( invoice_name ):
             reply['subject'],
             reply['message'],
             sender = invoice.modified_by,
-            recipients = [ invoice.contact_email ],
+            recipients = invoice.contact_email,
             send_email = True,
             print_html = True,
             print_format = settings.invoice_print_format,
@@ -192,7 +192,7 @@ def send_wellcome_email( doctype, name ):
             reply['subject'],
             reply['message'],
             sender=doc.modified_by,
-            recipients = [ invoice.contact_email ],
+            recipients = invoice.contact_email,
             send_email = True,
             print_html = True,
             print_format = settings.invoice_print_format,
