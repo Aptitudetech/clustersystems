@@ -198,8 +198,6 @@ def send_wellcome_email( doctype, name ):
             sender=doc.modified_by,
             recipients = invoice.contact_email,
             send_email = True,
-            print_html = True,
-            print_format = settings.invoice_print_format,
             attachments = attachments
         )
         
