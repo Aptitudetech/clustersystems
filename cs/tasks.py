@@ -33,6 +33,7 @@ def send_appointment( doc, standard_reply ):
         recipients = [ doc.email_id ],
         send_email = True
     )
+    frappe.db.commit()
 
 
 def send_appointment_schedule( lead ):
@@ -74,6 +75,7 @@ def send_invoice_to_customer( invoice_name ):
             print_format = settings.invoice_print_format,
             attachments = attachments
         )
+    frappe.db.commit()
 
 
 def send_appointment_update( lead ):
@@ -104,6 +106,7 @@ def appointment_reminder():
             # is fetched in the time window
             if _next.hour == get_datetime( lead.appointment_date ).hour:
                 send_appointment( lead, reminder.reminder_message )
+    frappe.db.commit()
 
 
 def create_appointment_event( lead ):
@@ -131,7 +134,7 @@ def create_appointment_event( lead ):
         'ref_name': lead.name
     })
     doc.insert()
-
+    frappe.db.commit()
 
 def update_appointment_event( lead ):
     '''Update an apppointment event in the calendar'''
@@ -156,6 +159,7 @@ def update_appointment_event( lead ):
         ])  
     })
     doc.save()
+    frappe.db.commit()
 
 
 def send_wellcome_email( doctype, name ):

@@ -149,14 +149,17 @@ def on_lead_oninsert(doc, handler=None):
 def on_lead_onupdate(doc, handler=None):
     '''Updates the appointment event and sends the update by email'''
 
-    onload = doc.get('__onload')
-    if doc.appointment_date and \
-        ( onload.original_appointment_date != doc.appointment_date or 
-          onload.original_appointment_location != doc.appointment_location ):
-            enqueue( 'cs.tasks.send_appointment_update', doc.name )
-            enqueue( 'cs.tasks.update_appointment_event', doc.name )
-            onload.original_appointment_date = doc.appointment_date
-            onload.original_appointment_location = doc.appointment_location
+    if not frappe.db.exists("Event", {"ref_type": doc.doctype, "ref_name": doc.name}):
+        on_lead_oninsert(doc, handler)
+    else:
+        onload = doc.get('__onload')
+        if doc.appointment_date and \
+            ( onload.original_appointment_date != doc.appointment_date or 
+            onload.original_appointment_location != doc.appointment_location ):
+                enqueue( 'cs.tasks.send_appointment_update', doc.name )
+                enqueue( 'cs.tasks.update_appointment_event', doc.name )
+                onload.original_appointment_date = doc.appointment_date
+                onload.original_appointment_location = doc.appointment_location
 
 
 def on_delivery_note_submit(doc, handler):
