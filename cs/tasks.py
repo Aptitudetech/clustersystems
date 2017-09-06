@@ -15,8 +15,8 @@ def get_standard_reply( template_name, doc, language=None  ):
     
     standard_reply = frappe.get_doc('Standard Reply', template_name)
     return {
-        'subject': frappe.render_template( _(standard_reply.subject, language), doc ),
-        'message': frappe.render_template( _(standard_reply.response, language), doc)
+        'subject': frappe.render_template( _(standard_reply.subject, language), doc.as_dict() ),
+        'message': frappe.render_template( _(standard_reply.response, language), doc.as_dict() )
     }
     
 
