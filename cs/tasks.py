@@ -28,7 +28,7 @@ def send_appointment( doc, standard_reply ):
         'Lead',
         doc.name,
         reply['subject'],
-        reply['content'],
+        reply['message'],
         sender = doc.modified_by,
         recipients = [ doc.email_id ],
         send_email = True
@@ -67,7 +67,7 @@ def send_invoice_to_customer( invoice_name ):
             'Sales Invoice',
             invoice_name,
             reply['subject'],
-            reply['content'],
+            reply['message'],
             sender = invoice.modified_by,
             recipients = [ invoice.contact_email ],
             send_email = True,
