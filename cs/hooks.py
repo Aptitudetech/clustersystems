@@ -86,7 +86,7 @@ doc_events = {
         "oninsert": [
             "cs.events.on_lead_oninsert",
         ],
-        "onupdate": [
+        "on_update": [
             "cs.events.on_lead_onupdate"
         ]
     },
