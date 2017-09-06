@@ -140,13 +140,18 @@ def on_lead_validate(doc, handler):
         doc.appointment_location = address_display
 
     if not doc.get('__islocal') and doc.get('contact_by'):
-        assign_to.add({
-            'assign_to': doc.contact_by,
-            'doctype': 'Lead',
-            'name': doc.name,
-            'description': frappe._('Automatic assignation'),
-            'date': doc.contact_date
-        })
+        if not frappe.db.exists("ToDo", {
+            "doctype": "Lead",
+            "name": doc.name,
+            "owner": doc.assign_to
+        }):
+            assign_to.add({
+                'assign_to': doc.contact_by,
+                'doctype': 'Lead',
+                'name': doc.name,
+                'description': frappe._('Automatic assignation'),
+                'date': doc.contact_date
+            })
 
 def on_lead_oninsert(doc, handler=None):
     '''Creates an appointment event and sends it by email'''
