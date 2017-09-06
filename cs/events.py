@@ -155,7 +155,7 @@ def on_lead_onupdate(doc, handler=None):
     if not frappe.db.exists("Event", {"ref_type": doc.doctype, "ref_name": doc.name}):
         on_lead_oninsert(doc, handler)
     else:
-        onload = doc.get('__onload')
+        onload = doc.get('__onload') or frappe._dict()
         if doc.appointment_date and \
             ( onload.get("original_appointment_date") != doc.appointment_date or 
             onload.get("original_appointment_location") != doc.appointment_location ):
