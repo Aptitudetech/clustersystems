@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import frappe
 import frappe.defaults
 
-from frappe.utils.background_jobs import enqueue
+from cs import tasks
 
 
 def get_project_autoname( doc, new_name ):
@@ -105,7 +105,8 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 
     settings = frappe.get_doc("Cluster System Settings", "Cluster System Settings")
     if settings.send_wellcome_email and settings.wellcome_reply:
-        enqueue( 'cs.tasks.send_wellcome_email', doc.quotation_to, doc.lead or doc.customer )
+        tasks.send_wellcome_email( doc.quotation_to, doc.lead or doc.customer )
+        #enqueue( 'cs.tasks.send_wellcome_email', doc.quotation_to, doc.lead or doc.customer )
 
 
 def quotation_onload(doc, handler=None):
@@ -142,8 +143,10 @@ def on_lead_oninsert(doc, handler=None):
     '''Creates an appointment event and sends it by email'''
 
     if doc.appointment_date or doc.appointment_location:
-        enqueue( 'cs.tasks.send_appointment_schedule', doc.name )
-        enqueue( 'cs.tasks.create_appointment_event', doc.name )
+        tasks.send_appointment_schedule( doc.name )
+        tasks.create_appointment_event( doc.name )
+        #enqueue( 'cs.tasks.send_appointment_schedule', doc.name )
+        #enqueue( 'cs.tasks.create_appointment_event', doc.name )
 
 
 def on_lead_onupdate(doc, handler=None):
@@ -156,8 +159,10 @@ def on_lead_onupdate(doc, handler=None):
         if doc.appointment_date and \
             ( onload.get("original_appointment_date") != doc.appointment_date or 
             onload.get("original_appointment_location") != doc.appointment_location ):
-                enqueue( 'cs.tasks.send_appointment_update', doc.name )
-                enqueue( 'cs.tasks.update_appointment_event', doc.name )
+                tasks.send_appointment_update( doc.name )
+                tasks.update_appointment_event( doc.name )
+                #enqueue( 'cs.tasks.send_appointment_update', doc.name )
+                #enqueue( 'cs.tasks.update_appointment_event', doc.name )
                 onload.original_appointment_date = doc.appointment_date
                 onload.original_appointment_location = doc.appointment_location
 
@@ -177,4 +182,5 @@ def on_delivery_note_submit(doc, handler):
     sales_invoice.submit()
 
     if settings.notify_invoice_to_customer and sales_invoice.contact_email:
-        enqueue( 'cs.tasks.send_invoice_to_customer', sales_invoice.name )
+        tasks.send_invoice_to_customer( sales_invoice.name )
+        #enqueue( 'cs.tasks.send_invoice_to_customer', sales_invoice.name )
