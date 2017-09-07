@@ -208,7 +208,7 @@ def on_delivery_note_submit(doc, handler):
 
 def on_task_onload( doc, handler ):
 	if not doc.get('__islocal'):
-		frappe.get('__onload').original_status = doc.status
+		doc.get('__onload').original_status = doc.status
 
 
 def on_task_onupdate( doc, handler ):
