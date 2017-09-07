@@ -206,12 +206,6 @@ def on_delivery_note_submit(doc, handler):
 		#enqueue( 'cs.tasks.send_invoice_to_customer', sales_invoice.name )
 
 
-def on_task_onload( doc, handler ):
-	if not doc.get('__islocal'):
-		doc.get('__onload').original_status = doc.status
-
-
-def on_task_onupdate( doc, handler ):
-	onload = doc.get('__onload') or frappe._dict()
-	if onload.get('original_status') != 'Close' and doc.status == "Close":
+def on_task_validate( doc, handler ):
+	if doc.status == "Close" and frappe.db.get_value("Task", doc.name, "status") != "Close":
 		tasks.notify_task_close_to_customer( doc.name )
