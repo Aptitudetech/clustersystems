@@ -50,7 +50,7 @@ def send_appointment_schedule( lead ):
 def send_invoice_to_customer( invoice_name ):
 	'''Send an invoice to the customer'''
 
-	invoice = frappe.get_doc('Invoice', invoice_name)
+	invoice = frappe.get_doc('Sales Invoice', invoice_name)
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
 	customer_language = frappe.db.get_value('Customer', invoice.customer, 'language')
 
