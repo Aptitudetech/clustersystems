@@ -187,7 +187,7 @@ def on_lead_onupdate(doc, handler=None):
 			})
 
 
-def on_delivery_note_submit(doc, handler):
+def on_delivery_note_onsubmit(doc, handler):
 	'''Makes a new invoice when delivery note submitted'''
 
 	from erpnext.stock.doctype.delivery_note.delivery_note import make_sales_invoice

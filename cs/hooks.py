@@ -96,8 +96,8 @@ doc_events = {
 		]
 	},
 	"Delivery Note": {
-		"submit": [
-			"cs.events.on_delivery_note_submit"
+		"on_submit": [
+			"cs.events.on_delivery_note_onsubmit"
 		]
 	},
 	"Task": {
