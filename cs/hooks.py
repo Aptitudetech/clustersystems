@@ -101,11 +101,8 @@ doc_events = {
 		]
 	},
 	"Task": {
-		"onload": [
-			"cs.events.on_task_onload"
-		],
-		"on_update": [
-			"cs.events.on_task_onupdate"
+		"validate": [
+			"cs.events.on_task_validate"
 		]
 	}
 }
