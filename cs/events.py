@@ -207,5 +207,5 @@ def on_delivery_note_submit(doc, handler):
 
 
 def on_task_validate( doc, handler ):
-	if doc.status == "Close" and frappe.db.get_value("Task", doc.name, "status") != "Close":
+	if doc.status == "Closed" and frappe.db.get_value("Task", doc.name, "status") != "Closed":
 		tasks.notify_task_close_to_customer( doc.name )
