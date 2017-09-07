@@ -51,7 +51,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 		new_project = frappe.copy_doc( base_project, True )
 		if doc.lead:
 			new_project.customer = frappe.db.get_value("Customer", {
-				"lead_name": lead
+				"lead_name": doc.lead
 			})
 		else:
 			new_project.customer = doc.custmer
