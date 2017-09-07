@@ -132,8 +132,7 @@ def on_lead_validate(doc, handler):
     '''Automatically define the appointment location and asign next contact by'''
     from frappe.contacts.doctype.address.address import (get_default_address,
         get_address_display)
-    from frappe.desk.form import assign_to
-
+    
     if doc.company and doc.appointment_date and not doc.appointment_location:
         address = get_default_address('Company', doc.company)
         address_display = get_address_display(address)
@@ -151,7 +150,8 @@ def on_lead_oninsert(doc, handler=None):
 
 def on_lead_onupdate(doc, handler=None):
     '''Updates the appointment event and sends the update by email'''
-
+    from frappe.desk.form import assign_to
+    
     if not frappe.db.exists("Event", {"ref_type": doc.doctype, "ref_name": doc.name, "color": "orange"}):
         on_lead_oninsert(doc, handler)
     else:
