@@ -139,21 +139,6 @@ def on_lead_validate(doc, handler):
         address_display = get_address_display(address)
         doc.appointment_location = address_display
 
-    if not doc.get('__islocal') and doc.get('contact_by'):
-        if not frappe.db.exists("ToDo", {
-            "reference_type": "Lead",
-            "reference_name": doc.name,
-            "owner": doc.contact_by,
-            "status": "Open"
-        }):
-            assign_to.add({
-                'assign_to': doc.contact_by,
-                'doctype': 'Lead',
-                'name': doc.name,
-                'description': frappe._('Automatic assignation'),
-                'date': doc.contact_date
-            })
-
 def on_lead_oninsert(doc, handler=None):
     '''Creates an appointment event and sends it by email'''
 
@@ -180,6 +165,21 @@ def on_lead_onupdate(doc, handler=None):
                 #enqueue( 'cs.tasks.update_appointment_event', doc.name )
                 onload["original_appointment_date"] = doc.appointment_date
                 onload["original_appointment_location"] = doc.appointment_location
+
+    if doc.get('contact_by'):
+        if not frappe.db.exists("ToDo", {
+            "reference_type": "Lead",
+            "reference_name": doc.name,
+            "owner": doc.contact_by,
+            "status": "Open"
+        }):
+            assign_to.add({
+                'assign_to': doc.contact_by,
+                'doctype': 'Lead',
+                'name': doc.name,
+                'description': frappe._('Automatic assignation'),
+                'date': doc.contact_date
+            })
 
 
 def on_delivery_note_submit(doc, handler):
