@@ -212,11 +212,20 @@ def notify_task_close_to_customer( name ):
 
 	reply = get_standard_reply( settings.task_close_reply, doc )
 
-	email_id = get_default_contact( 'Customer', frappe.db.get_value(
+	customer = frappe.db.get_value("Project", doc.project, "customer")
+	if not customer:
+		return
+
+	customer = frappe.get_doc("Customer", customer)
+	contact = get_default_contact( 'Customer', frappe.db.get_value(
 		'Project', doc.project, 'customer'
 	))
+	if not customer.lead_name:
+		email_id = frappe.db.get_value("Contact", contact, "email_id")
+	else:
+		email_id = frappe.db.get_value("Lead", customer.lead_name, "email_id")	
+
 	if email_id:
-		email_id = email_id.get("email_id")
 		email.make(
 			'Task',
 			name,
