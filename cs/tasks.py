@@ -203,7 +203,7 @@ def send_wellcome_email( doctype, name ):
 		
 
 def notify_task_close_to_customer( name ):
-	doc = frappe.get_doc('Task', doc.name)
+	doc = frappe.get_doc('Task', name)
 
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
 
