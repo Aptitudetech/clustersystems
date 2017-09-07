@@ -76,30 +76,38 @@ app_include_js = "/assets/cs/js/cs.js"
 # }
 
 doc_events = {
-    "Lead": {
-        "onload": [
-            "cs.events.on_lead_onload"
-        ],
-        "validate": [
-            "cs.events.on_lead_validate"
-        ],
-        "oninsert": [
-            "cs.events.on_lead_oninsert",
-        ],
-        "on_update": [
-            "cs.events.on_lead_onupdate"
-        ]
-    },
-    "Quotation": {
-        "onload": [
-            "cs.events.quotation_onload"
-        ]
-    },
-    "Delivery Note": {
-        "submit": [
-            "cs.events.on_delivery_note_submit"
-        ]
-    }
+	"Lead": {
+		"onload": [
+			"cs.events.on_lead_onload"
+		],
+		"validate": [
+			"cs.events.on_lead_validate"
+		],
+		"oninsert": [
+			"cs.events.on_lead_oninsert",
+		],
+		"on_update": [
+			"cs.events.on_lead_onupdate"
+		]
+	},
+	"Quotation": {
+		"onload": [
+			"cs.events.quotation_onload"
+		]
+	},
+	"Delivery Note": {
+		"submit": [
+			"cs.events.on_delivery_note_submit"
+		]
+	},
+	"Task": {
+		"onload": [
+			"cs.events.on_task_onload"
+		],
+		"on_update": [
+			"cs.events.on_task_onupdate"
+		]
+	}
 }
 
 # Scheduled Tasks
