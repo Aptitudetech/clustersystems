@@ -98,7 +98,8 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 			'doctype': 'Delivery Note',
 			'name': dn.name,
 			'description': frappe._('Automatic assignation'),
-			'date': delivery_date
+			'date': delivery_date,
+			'notify': 1
 		})
 
 		frappe.msgprint(
@@ -183,7 +184,8 @@ def on_lead_onupdate(doc, handler=None):
 				'doctype': 'Lead',
 				'name': doc.name,
 				'description': frappe._('Automatic assignation'),
-				'date': doc.contact_date
+				'date': doc.contact_date,
+				'notify': 1
 			})
 
 
