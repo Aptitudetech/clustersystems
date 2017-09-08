@@ -46,7 +46,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 		base_project = frappe.get_doc('Project', filters)
 		project_name = " / ".join([
 			doc.customer_name,
-			str(frappe.db.count('Project', {'customer': doc.customer}) + 1)
+			str(frappe.db.count('Project') + 1)
 		])
 		new_project = frappe.copy_doc( base_project, True )
 		if doc.lead:
@@ -61,7 +61,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 		new_project.flags.ignore_permissions = True
 		new_project.insert()
 
-		for task_name in frappe.get_all("Task", filters={"project": base_project.name}):
+		for task_name in frappe.get_all("Task", filters={"project": base_project.name}, order_by='idx'):
 			task = frappe.get_doc("Task", task_name)
 			new_task = frappe.copy_doc( task, True )
 			new_task.project = new_project.name
@@ -99,7 +99,8 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 			'name': dn.name,
 			'description': frappe._('Automatic assignation'),
 			'date': delivery_date,
-			'notify': 1
+			'notify': 1,
+			'assigned_by': 'Administrator'
 		})
 
 		frappe.msgprint(
@@ -185,7 +186,8 @@ def on_lead_onupdate(doc, handler=None):
 				'name': doc.name,
 				'description': frappe._('Automatic assignation'),
 				'date': doc.contact_date,
-				'notify': 1
+				'notify': 1,
+				'assigned_by': 'Administrator'
 			})
 
 

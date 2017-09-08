@@ -1,0 +1,1 @@
+cs.patches.deprecate_process_quote_setup
