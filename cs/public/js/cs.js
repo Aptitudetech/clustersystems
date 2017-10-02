@@ -106,4 +106,14 @@ frappe.ui.form.on('Sales Invoice', {
             frm.set_value('naming_series', 'SINV-RET');
         }
     }
+});
+
+frappe.ui.form.on('Lead', {
+    'appointment_date': function(frm, cdt, cdn){
+        if (!frm.doc.appointment_location){
+            frappe.call({
+                'method': 'frappe.contacts.doctype.address.address.'
+            })
+        }
+    }
 })
