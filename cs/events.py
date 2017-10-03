@@ -98,6 +98,9 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 	dn.flags.ignore_mandatory = True
 	dn.flags.ignore_permissions = True
 	dn.insert()
+	for row in doc.items:
+		if row.serial_no:
+			row.db_set('serial_no', None, update_modified=False)
 
 	frappe.msgprint(
 		frappe._('New Delivery Note {0} create!').format(so.name)
