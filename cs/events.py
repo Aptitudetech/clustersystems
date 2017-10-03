@@ -55,7 +55,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 				"lead_name": doc.lead
 			})
 		else:
-			new_project.customer = doc.custmer
+			new_project.customer = doc.customer
 		new_project.project_type = "External"
 		new_project.autoname = get_project_autoname( new_project, project_name )
 		new_project.flags.ignore_mandatory = True
