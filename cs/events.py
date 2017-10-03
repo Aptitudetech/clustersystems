@@ -45,9 +45,9 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 			'template_type': doc.template_type } ):
 			filters['template_type'] = doc.template_type
 		base_project = frappe.get_doc('Project', filters)
-		project_name = " / ".join([
+		project_name = " - ".join([
 			doc.customer_name,
-			str(frappe.db.count('Project') + 1)
+			"# " + str(frappe.db.count('Project') + 1)
 		])
 		new_project = frappe.copy_doc( base_project, True )
 		if doc.lead:
