@@ -20,6 +20,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 	from erpnext.selling.doctype.quotation.quotation import make_sales_order
 	from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note
 	from frappe.desk.form import assign_to
+	from frappe.utils import today()
 
 	doc = frappe.get_doc('Quotation', quote)
 
@@ -68,6 +69,17 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 			new_task.flags.ignore_mandatory = True
 			new_task.flags.ignore_permissions = True
 			new_task.insert()
+
+			if new_task.get('assigned_to'):
+				assign_to.add({
+					'assign_to': new_task.assigned_to,
+					'doctype': 'Task',
+					'name': new_task.name,
+					'description': frappe._('Automatic assignation'),
+					'date': today(),
+					'notify': 1,
+					'assigned_by': 'Administrator'
+				})
 
 		frappe.msgprint(
 			frappe._('New Project {0} created').format(project_name)
