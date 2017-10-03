@@ -20,7 +20,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 	from erpnext.selling.doctype.quotation.quotation import make_sales_order
 	from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note
 	from frappe.desk.form import assign_to
-	from frappe.utils import today()
+	from frappe.utils import today
 
 	doc = frappe.get_doc('Quotation', quote)
 
