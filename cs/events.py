@@ -99,7 +99,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 	dn.flags.ignore_permissions = True
 	dn.insert()
 	for row in doc.items:
-		if row.serial_no:
+		if row.get("serial_no"):
 			row.db_set('serial_no', None, update_modified=False)
 
 	frappe.msgprint(
