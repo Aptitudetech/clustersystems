@@ -228,3 +228,10 @@ def on_delivery_note_onsubmit(doc, handler):
 def on_task_validate( doc, handler ):
 	if doc.status == "Closed" and frappe.db.get_value("Task", doc.name, "status") != "Closed":
 		tasks.notify_task_close_to_customer( doc.name )
+
+
+@frappe.whitelist()
+def get_company_company(company):
+	from frappe.contacts.doctype.address.address import get_company_address
+
+	return (get_company_address(company) or {}).get("company_address_display")

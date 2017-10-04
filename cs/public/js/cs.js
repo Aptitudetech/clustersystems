@@ -97,8 +97,16 @@ frappe.ui.form.on('Lead', {
     'appointment_date': function(frm, cdt, cdn){
         if (!frm.doc.appointment_location){
             frappe.call({
-                'method': 'frappe.contacts.doctype.address.address.'
-            })
+                'method': 'cs.evets.address.address.get_company_address',
+                'args': {
+                    'company': frm.doc.company
+                },
+                'callback': function(res){
+                    if (res && res.message){
+                        frm.set_value('appointment_location', res.message)
+                    }
+                }
+            });
         }
     }
 })
