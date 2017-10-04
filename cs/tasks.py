@@ -191,7 +191,7 @@ def send_wellcome_email( doctype, name ):
 			reply['message'],
 			reply['subject'],
 			sender=doc.modified_by,
-			recipients = doc.contact_email,
+			recipients = email_id,
 			send_email = True,
 			attachments = attachments
 		)
