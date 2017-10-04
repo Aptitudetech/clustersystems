@@ -34,7 +34,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 		customer.insert()
 
 	so = make_sales_order( quote )
-	so.delivery_date = delivery_date
+	so.delivery_date = delivery_date or today()
 	so.flags.ignore_mandatory = True
 	so.flags.ignore_permissions = True
 	so.save()

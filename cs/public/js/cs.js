@@ -57,21 +57,6 @@ frappe.ui.form.on('Quotation', {
                             }
                         ])
                     }
-                    if ( frm.doc.order_type === 'Sales' ){
-                        title.push(__('Delivery Date'));
-                        fields = fields.concat([
-                            {
-                                'fieldtype': 'Section Break',
-                                'label': __('Sales Order Details')
-                            },
-                            {
-                                'fieldname': 'delivery_date',
-                                'label': __('Delivery Date'),
-                                'fieldtype': 'Date',
-                                'reqd': 1
-                            }
-                        ])
-                    }
 
                     if (title.length == 2){
                         title[0] = title[0] + ' ';
