@@ -163,12 +163,13 @@ def update_appointment_event( lead ):
 def send_wellcome_email( doctype, name ):
 	doc = frappe.get_doc(doctype, name)
 
+	email_id = None
 	if doctype == "Customer":
 		if doc.lead_name:
 			email_id = frappe.db.get_value("Lead", doc.lead_name, "email_id")
 		else:
 			contact = get_default_contact( doctype, name )
-			if email_id:
+			if contact:
 				email_id = contact.get("email_id")
 	else:
 		email_id = doc.get('email_id')
@@ -195,6 +196,18 @@ def send_wellcome_email( doctype, name ):
 			send_email = True,
 			attachments = attachments
 		)
+	else:
+		msgs = [
+			frappe._(
+				"We are unable to find an valid Email for the party {0} - {1}"
+			).format(doctype, name)
+		]
+		if doctype == "Customer":
+			msgs.append(frappe._(
+				"Please, ensure that the customer has a primary contact, with valid email"
+				"<br> or that it relates to a lead"
+			))
+		frappe.throw("<b>".join(msgs))
 		
 
 def notify_task_close_to_customer( name ):

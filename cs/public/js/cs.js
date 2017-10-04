@@ -9,10 +9,10 @@ frappe.ui.form.on('Quotation', {
         if (frm.doc.docstatus === 1){
             frm.add_custom_button(
                 __('Process Quote'),
-                (frm.doc.order_type !== 'Sales' && (
+                (
                     frm.doc.customer || (
                     frm.doc.lead 
-                    && frm.doc.__onload.has_customer))) ?
+                    && frm.doc.__onload.has_customer)) ?
                 function(){
                     frm.call({
                         'method': 'cs.events.process_quote',
