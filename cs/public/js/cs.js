@@ -97,7 +97,7 @@ frappe.ui.form.on('Lead', {
     'appointment_date': function(frm, cdt, cdn){
         if (!frm.doc.appointment_location){
             frappe.call({
-                'method': 'cs.evets.address.address.get_company_address',
+                'method': 'cs.events.get_company_address',
                 'args': {
                     'company': frm.doc.company
                 },
