@@ -231,7 +231,7 @@ def on_task_validate( doc, handler ):
 
 
 @frappe.whitelist()
-def get_company_company(company):
+def get_company_address(company):
 	from frappe.contacts.doctype.address.address import get_company_address
 
 	return (get_company_address(company) or {}).get("company_address_display")
