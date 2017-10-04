@@ -170,7 +170,7 @@ def send_wellcome_email( doctype, name ):
 		else:
 			contact = get_default_contact( doctype, name )
 			if contact:
-				email_id = contact.get("email_id")
+				email_id = frappe.db.get_value("Contact", contact, "email_id")
 	else:
 		email_id = doc.get('email_id')
 
