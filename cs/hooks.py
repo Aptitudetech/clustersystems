@@ -31,6 +31,10 @@ app_include_js = "/assets/cs/js/cs.js"
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
+doctype_calendar_js = {
+	"Task": "public/js/task_calendar.js"
+}
+
 # Home Pages
 # ----------
 
