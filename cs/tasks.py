@@ -96,15 +96,16 @@ def appointment_reminder():
 		return
 
 	now_date = now_datetime()
+	now_date = now_date - timedelta(minutes=now_date.minute, seconds=now_date.second, microseconds=now_date.microsecond)
 	for reminder in reminders:
 		_next = add_to_date( now_date, hours=reminder.hours_before )
 		# Move the minutes to the last possible moment in the hour
 		_next = _next + timedelta(minutes=59 - _next.minute, seconds=59 - _next.second)
-		for lead_name in frappe.get_all( 'Lead', filters={'appointment_date': ['beetween', now_date, _next]} ):
-			lead = frappe.get_doc( 'Lead', lead_name )
+		for lead in frappe.get_all("Lead", fields="*", filters={"appointment_date": ["between", now_date, _next]}):
 			# Just send the appointment reminder in the first time that the appointment 
 			# is fetched in the time window
-			if _next.hour == get_datetime( lead.appointment_date ).hour:
+			if _next.hour == get_datetime( lead.appointment_date ).hour \
+				and get_datetime(lead.appointment_date).strftime('%Y-%m-%d') == _next.strftime('%Y-%m-%d'):
 				send_appointment( lead, reminder.reminder_message )
 
 
