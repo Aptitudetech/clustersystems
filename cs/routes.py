@@ -2,6 +2,8 @@
 
 from __future__ import unicode_literals
 
+import frappe
+
 @frappe.whitelist()
 def get_task_events(start, end, filters=None):
 	"""Returns events for Gantt / Calendar view rendering.
