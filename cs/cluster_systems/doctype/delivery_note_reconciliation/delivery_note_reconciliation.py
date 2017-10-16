@@ -41,7 +41,7 @@ class DeliveryNoteReconciliation(Document):
 				row['action'] == 'Bill'
 				self.append('details', row)
 			else:
-				sri = len([s for s row['serial_no'].splitlines() if s])
+				sri = len([s for s in row['serial_no'].splitlines() if s])
 				for sr in row['serial_no'].splitlines():
 					if not sr:
 						continue
