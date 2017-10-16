@@ -256,7 +256,7 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount, compan
 
 	from erpnext.stock.doctype.delivery_note.delivery_note import make_sales_return
 	msgs = []
-	if not frappe.db.exists('Serial No', serial_no):
+	if not frappe.db.exists('Serial No', serial_no) or not frappe.db.get_value('Serial No', serial_no, 'creation_document_type'):
 		now = now_datetime().strftime('%Y-%m-%d %H:%M:%S').split(' ')
 		uom = frappe.db.get_value('Item', item_code, 'stock_uom')
 		ste = frappe.new_doc('Stock Entry').update({
