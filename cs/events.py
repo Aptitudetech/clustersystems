@@ -104,7 +104,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 	dn.insert()
 	for row in doc.items:
 		if row.get("serial_no"):
-			row.db_set('serial_no', None, update_modified=False)
+			frappe.db.set_value(row.doctype, row.name, 'serial_no', None, update_modified=False)
 
 	frappe.msgprint(
 		frappe._('New Delivery Note {0} create!').format(so.name)
@@ -353,3 +353,15 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount, compan
 
 	if msgs:
 		frappe.msgprint('<br>'.join(msgs))
+
+
+def on_project_onload(doc, handler=None):
+	if doc.get('template_type') == 'Swap and Warranty' \
+		and frappe.db.exists('Delivery Note', {'project': doc.name}):
+		item_codes = []
+		for dn in frappe.get_all('Delivery Note', {'project': doc.name}):
+			dn = frappe.get_doc('Delivery Note', dn)
+			for item in dn.items:
+				if item.item_code not in item_codes:
+					item_codes.append(item_codes)
+		doc.get('__onload').dn_item_codes = item_codes

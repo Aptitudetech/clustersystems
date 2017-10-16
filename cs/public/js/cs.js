@@ -156,16 +156,21 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                     'fieldname': 'item_code',
                     'label': __('Item Code'),
                     'fieldtype': 'Link',
-                    'options': 'item_code',
-                    'get_query': function(){
+                    'options': 'Item',
+                    'get_query': function(doc){
+                        var filters = {
+                            "is_stock_item": 1,
+                            "has_serial_no": 1
+                        };
+                        if (doc.__onload && doc.__onload.dn_item_codes){
+                            filters['name'] = ['in', doc.__onload.dn_item_codes];
+                        }
                         return {
                             'query': "erpnext.controllers.queries.item_query",
-                            'filters': {
-                                "is_stock_item": 1,
-                                "has_serial_no": 1
-                            }
+                            'filters': filters
                         }
                     },
+                    'default': doc.__onload && doc.__onload.dn_item_codes && doc.__onload.dn_item_codes.length ? doc.__onload.dn_item_codes[0] : null,
                     'on_make': function(field){
                         debugger;
                         field.refresh();
