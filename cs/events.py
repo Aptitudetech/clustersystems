@@ -363,5 +363,5 @@ def on_project_onload(doc, handler=None):
 			dn = frappe.get_doc('Delivery Note', dn)
 			for item in dn.items:
 				if item.item_code not in item_codes:
-					item_codes.append(item_codes)
+					item_codes.append(item.item_code)
 		doc.get('__onload').dn_item_codes = item_codes
