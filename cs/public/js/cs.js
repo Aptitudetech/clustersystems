@@ -117,7 +117,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
             var fields = [
                 {
                     'fieldname': 'warehouse',
-                    'label': __('Warehouse for Replacement'),
+                    'label': __('Warehouse for Return'),
                     'fieldtype': 'Link',
                     'options': 'Warehouse',
                     'reqd': 1,
@@ -133,7 +133,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                     'on_make': function(field){
                         debugger;
                         field.refresh();
-                        field.$input.on('change', function(ev){
+                        field.$input.on('awesomplete-selectcomplete', function(ev){
                             if (cur_dialog.get_value('warehouse') && cur_dialog.get_value('item_code')){
                                 frappe.call({
                                     'method': 'erpnext.stock.utils.get_stock_balance',
@@ -163,7 +163,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                             "has_serial_no": 1
                         };
                         if (frm.doc.__onload && frm.doc.__onload.dn_item_codes){
-                            filters['name'] = ['in', doc.__onload.dn_item_codes];
+                            filters['name'] = ['in', frm.doc.__onload.dn_item_codes];
                         }
                         return {
                             'query': "erpnext.controllers.queries.item_query",
@@ -174,7 +174,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                     'on_make': function(field){
                         debugger;
                         field.refresh();
-                        field.$input.on('change', function(ev){
+                        field.$input.on('awesomplete-selectcomplete', function(ev){
                             if (cur_dialog.get_value('warehouse') && cur_dialog.get_value('item_code')){
                                 frappe.call({
                                     'method': 'erpnext.stock.utils.get_stock_balance',
@@ -266,3 +266,4 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
         });
     }
 });
+
