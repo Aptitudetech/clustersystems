@@ -162,7 +162,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                             "is_stock_item": 1,
                             "has_serial_no": 1
                         };
-                        if (doc.__onload && doc.__onload.dn_item_codes){
+                        if (frm.doc.__onload && frm.doc.__onload.dn_item_codes){
                             filters['name'] = ['in', doc.__onload.dn_item_codes];
                         }
                         return {
