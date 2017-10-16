@@ -277,7 +277,8 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount, compan
 					'stock_uom': uom,
 					'conversion_factor': 1.0,
 					'serial_no': serial_no,
-					'allow_zero_valuation_rate': 1
+					'allow_zero_valuation_rate': 1,
+					't_warehouse': warehouse
 				}
 			]
 		})
@@ -313,21 +314,22 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount, compan
 		dn.run_method('submit')
 
 		msgs.append(frappe._('New Delivery Note `{0}` created!').format(dn.name))
-	returned = frappe.db.exists('Delivery Note Item', {
-		'docstatus': 1,
-		'qty': ['<', 0],
-		'serial_no': ['like', "%" + serial_no + "%"]
-	})
-
-	if returned:
-		frappe.throw(_('The serial no `{0}` was already swapped!').format(serial_no))
 	else:
-		delivered = frappe.db.exists('Delivery Note Item', {
+		returned = frappe.db.exists('Delivery Note Item', {
 			'docstatus': 1,
-			'qty': ['>', 0],
+			'qty': ['<', 0],
 			'serial_no': ['like', "%" + serial_no + "%"]
 		})
-		dn = frappe.db.get_doc('Delivery Note', dn)	
+
+		if returned:
+			frappe.throw(_('The serial no `{0}` was already swapped!').format(serial_no))
+		else:
+			delivered = frappe.db.exists('Delivery Note Item', {
+				'docstatus': 1,
+				'qty': ['>', 0],
+				'serial_no': ['like', "%" + serial_no + "%"]
+			})
+			dn = frappe.get_doc('Delivery Note', delivered)	
 	
 	rt = make_sales_return(dn.name)
 	for i, item in enumerate(rt.items):
