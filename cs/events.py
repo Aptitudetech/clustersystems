@@ -339,8 +339,8 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount, compan
 		item.update({
 			'item_code': item_code,
 			'qty': -1,
-			'basic_rate': credit_amount,
-			'basic_amount': credit_amount,
+			'rate': credit_amount,
+			'amount': -credit_amount,
 			'uom': uom,
 			'stock_uom': uom,
 			'conversion_factor': 1.0,
