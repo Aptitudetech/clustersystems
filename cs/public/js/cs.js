@@ -170,7 +170,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                             'filters': filters
                         }
                     },
-                    'default': doc.__onload && doc.__onload.dn_item_codes && doc.__onload.dn_item_codes.length ? doc.__onload.dn_item_codes[0] : null,
+                    'default': frm.doc.__onload && frm.doc.__onload.dn_item_codes && frm.doc.__onload.dn_item_codes.length ? frm.doc.__onload.dn_item_codes[0] : null,
                     'on_make': function(field){
                         debugger;
                         field.refresh();
