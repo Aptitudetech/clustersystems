@@ -134,17 +134,17 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                         debugger;
                         field.refresh();
                         field.$input.on('change', function(ev){
-                            if (d.get_value('warehouse') && d.get_value('item_code')){
+                            if (cur_dialog.get_value('warehouse') && cur_dialog.get_value('item_code')){
                                 frappe.call({
                                     'method': 'erpnext.stock.utils.get_stock_balance',
                                     'args': {
-                                        'item_code': d.get_value('item_code'),
-                                        'warehouse': d.get_value('warehouse'),
+                                        'item_code': cur_dialog.get_value('item_code'),
+                                        'warehouse': cur_dialog.get_value('warehouse'),
                                         'with_valuation_rate': 1
                                     },
                                     'callback': function(res){
                                         if (res && res.message && res.message.length == 2 && res.message[1] > 0){
-                                            d.set_value('valuation_rate', res.message[1]);
+                                            cur_dialog.set_value('valuation_rate', res.message[1]);
                                         }
                                     }
                                 });
@@ -175,17 +175,17 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                         debugger;
                         field.refresh();
                         field.$input.on('change', function(ev){
-                            if (d.get_value('warehouse') && d.get_value('item_code')){
+                            if (cur_dialog.get_value('warehouse') && cur_dialog.get_value('item_code')){
                                 frappe.call({
                                     'method': 'erpnext.stock.utils.get_stock_balance',
                                     'args': {
-                                        'item_code': d.get_value('item_code'),
-                                        'warehouse': d.get_value('warehouse'),
+                                        'item_code': cur_dialog.get_value('item_code'),
+                                        'warehouse': cur_dialog.get_value('warehouse'),
                                         'with_valuation_rate': 1
                                     },
                                     'callback': function(res){
                                         if (res && res.message && res.message.length == 2 && res.message[1] > 0){
-                                            d.set_value('valuation_rate', res.message[1]);
+                                            cur_dialog.set_value('valuation_rate', res.message[1]);
                                         }
                                     }
                                 });
@@ -210,9 +210,9 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                         debugger;
                         field.refresh();
                         field.$input.on('change', function(ev){
-                            if (d.get_value('valuation_rate') && d.get_value('percent_for_return')){
-                                d.set_value('credit_amount', (
-                                    d.get_value('valuation_rate') * get.value('percent_for_return') / 100.0)
+                            if (cur_dialog.get_value('valuation_rate') && cur_dialog.get_value('percent_for_return')){
+                                cur_dialog.set_value('credit_amount', (
+                                    cur_dialog.get_value('valuation_rate') * cur_dialog.get_value('percent_for_return') / 100.0)
                                 );
                             }
                             return true;
@@ -228,9 +228,9 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                         debugger;
                         field.refresh();
                         field.$input.on('change', function(ev){
-                            if (d.get_value('valuation_rate') && d.get_value('percent_for_return')){
-                                d.set_value('credit_amount', (
-                                    d.get_value('valuation_rate') * get.value('percent_for_return') / 100.0)
+                            if (cur_dialog.get_value('valuation_rate') && cur_dialog.get_value('percent_for_return')){
+                                cur_dialog.set_value('credit_amount', (
+                                    cur_dialog.get_value('valuation_rate') * cur_dialog.get_value('percent_for_return') / 100.0)
                                 );
                             }
                             return true;
