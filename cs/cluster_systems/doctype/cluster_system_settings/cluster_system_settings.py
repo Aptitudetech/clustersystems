@@ -8,5 +8,7 @@ from frappe.model.document import Document
 
 class ClusterSystemSettings(Document):
 	def validate( self ):
-	    	for field in ['auto_create_project', 'auto_assign_dn_to']:
+	    	for field in ['auto_create_project', 'auto_assign_dn_to', 
+				'percent_for_return', 'warehouse_for_return', 
+				'warehouse_for_replacement', 'account_for_stock_devaluation']:
     			frappe.defaults.add_global_default(field, self.get(field))

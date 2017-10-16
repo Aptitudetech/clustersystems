@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import frappe
 import frappe.defaults
+from frappe.utils import now_datetime
 
 from cs import tasks
 
@@ -88,6 +89,9 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 		so.project = new_project.name
 		
 
+	if doc.get('template_type') == 'Swap and Warranty':
+		so.taxes = []
+
 	so.submit()
 
 	frappe.msgprint(
@@ -135,6 +139,9 @@ def quotation_onload(doc, handler=None):
 	if doc.lead:
 		customer = frappe.db.get_value("Customer", {"lead_name": doc.lead})
 		doc.get("__onload").has_customer = customer
+		doc.get("__onload").has_sales_order = frappe.db.count("Sales Order Item", {
+			"prevdoc_docname": doc.name
+		})
 
 
 def on_lead_onload(doc, handler=None):
@@ -212,9 +219,15 @@ def on_delivery_note_onsubmit(doc, handler):
 	from erpnext.stock.doctype.delivery_note.delivery_note import make_sales_invoice
 	
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
-	if not settings.enable_delivery_note_automation:
+	if not settings.enable_delivery_note_automation \
+		or doc.is_return:
 		return
 
+	if doc.get('project') \
+		and frappe.db.get_value('Project', doc.project, 'template_type') == 'Swap and Warranty':
+		doc.taxes = []
+		return
+	
 	sales_invoice = make_sales_invoice( doc.name )
 	sales_invoice.flags.ignore_permissions = True
 	sales_invoice.insert()
@@ -235,3 +248,108 @@ def get_company_address(company):
 	from frappe.contacts.doctype.address.address import get_company_address
 
 	return (get_company_address(company) or {}).get("company_address_display")
+
+
+@frappe.whitelist()
+def make_return(customer, item_code, serial_no, warehouse, credit_amount, company, project):
+	'''Automates the return generation against a project'''
+
+	from erpnext.stock.doctype.delivery_note.delivery_note import make_sales_return
+	msgs = []
+	if not frappe.db.exists('Serial No', serial_no):
+		now = now_datetime().split(' ')
+		uom = frappe.db.get_value('Item', item_code, 'stock_uom')
+		ste = frappe.new_doc('Stock Entry').update({
+			'purpose': 'Stock Entry',
+			'naming_series': 'STE-',
+			'company': company,
+			'posting_date': now[0],
+			'posting_time': now[1],
+			't_warehouse': warehouse,
+			'project': project,
+			'items': [
+				{
+					'item_code': item_code,
+					'qty': 1,
+					'basic_rate': 0.0,
+					'basic_amount': 0.0,
+					'uom': uom,
+					'stock_uom': uom,
+					'conversion_factor': 1.0,
+					'serial_no': serial_no,
+					'allow_zero_valuation_rate': 1
+				}
+			]
+		})
+		ste.run_method('get_missing_values')
+		ste.run_method('save')
+		ste.run_method('validate')
+
+		msgs.append(frappe._('New Stock Entry `{0}` created!').format(ste.name))
+
+		dn = frappe.new_doc('Delivery Note').update({
+			'series': 'DN-',
+			'customer': customer,
+			'company': company,
+			'posting_date': now[0],
+			'posting_time': now[1],
+			'project': project,
+			'items': [{
+				'item_code': item_code,
+				'warehouse': warehouse,
+				'quantity': 1.0,
+				'stock_uom': uom,
+				'uom': uom,
+				'conversion_factor': 1.0,
+				'stock_qty': 1.0,
+				'price_list_rate': 0.0,
+				'rate': 0.0,
+				'amount': 0.0,
+				'allow_zero_valuation_rate': 1
+			}]
+		})
+		dn.run_method('get_missing_values')
+		dn.run_method('save')
+		dn.run_method('submit')
+
+		msgs.append(frappe._('New Delivery Note `{0}` created!').format(dn.name))
+	returned = frappe.db.exists('Delivery Note Item', {
+		'docstatus': 1,
+		'qty': ['<', 0],
+		'serial_no': ['like', "%" + serial_no + "%"]
+	})
+
+	if returned:
+		frappe.throw(_('The serial no `{0}` was already swapped!').format(serial_no))
+	else:
+		delivered = frappe.db.exists('Delivery Note Item', {
+			'docstatus': 1,
+			'qty': ['>', 0],
+			'serial_no': ['like', "%" + serial_no + "%"]
+		})
+		dn = frappe.db.get_doc('Delivery Note', dn)	
+	
+	rt = make_sales_return(dn.name)
+	for i, item in enumerate(rt.items):
+		if item.item_code != item_code:
+			del rt.items[i]
+		item.update({
+			'item_code': item_code,
+			'qty': -1,
+			'basic_rate': credit_amount,
+			'basic_amount': credit_amount,
+			'uom': uom,
+			'stock_uom': uom,
+			'conversion_factor': 1.0,
+			'serial_no': serial_no,
+			'allow_zero_valuation_rate': 1
+		})
+
+	rt.run_method('get_missing_values')
+	rt.run_method('save')
+	rt.run_method('submit')
+
+	msgs.append(frappe._('New Return `{0}` created!').format(rt.name))
+
+	if msgs:
+		frappe.msgprint('<br>'.join(msgs))

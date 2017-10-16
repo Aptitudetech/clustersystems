@@ -6,7 +6,7 @@ frappe.ui.form.on('Project', {
 
 frappe.ui.form.on('Quotation', {
     refresh: function(frm, cdt, cdn){
-        if (frm.doc.docstatus === 1){
+        if (frm.doc.docstatus === 1 && !frm.doc.__onload.has_sales_order){
             frm.add_custom_button(
                 __('Process Quote'),
                 (
@@ -57,7 +57,7 @@ frappe.ui.form.on('Quotation', {
                             }
                         ])
                     }
-
+                    
                     if (title.length == 2){
                         title[0] = title[0] + ' ';
                         title[1] = ' ' + title[1]; 
@@ -109,4 +109,155 @@ frappe.ui.form.on('Lead', {
             });
         }
     }
-})
+});
+
+frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
+    if (!frm.doc.__islocal && frm.doc.template_type === "Swap and Warranty"){
+        if (frm.doc.template_type === "Swap and Warranty"){
+            var fields = [
+                {
+                    'fieldname': 'warehouse',
+                    'label': __('Warehouse for Replacement'),
+                    'fieldtype': 'Link',
+                    'options': 'Warehouse',
+                    'reqd': 1,
+                    'default': frappe.defaults.get_global_default("warehouse_for_return"),
+                    'get_query': function(){
+                        return {
+                            filters: {
+                                'is_group': ["=", 0],
+                                'company': frm.doc.company
+                            }
+                        }
+                    },
+                    'on_make': function(field){
+                        debugger;
+                        field.refresh();
+                        field.$input.on('change', function(ev){
+                            if (d.get_value('warehouse') && d.get_value('item_code')){
+                                frappe.call({
+                                    'method': 'erpnext.stock.utils.get_stock_balance',
+                                    'args': {
+                                        'item_code': d.get_value('item_code'),
+                                        'warehouse': d.get_value('warehouse'),
+                                        'with_valuation_rate': 1
+                                    },
+                                    'callback': function(res){
+                                        if (res && res.message && res.message.length == 2 && res.message[1] > 0){
+                                            d.set_value('valuation_rate', res.message[1]);
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                },
+                {
+                    'fieldname': 'item_code',
+                    'label': __('Item Code'),
+                    'fieldtype': 'Link',
+                    'options': 'item_code',
+                    'get_query': function(){
+                        return {
+                            'query': "erpnext.controllers.queries.item_query",
+                            'filters': {
+                                "is_stock_item": 1,
+                                "has_serial_no": 1
+                            }
+                        }
+                    },
+                    'on_make': function(field){
+                        debugger;
+                        field.refresh();
+                        field.$input.on('change', function(ev){
+                            if (d.get_value('warehouse') && d.get_value('item_code')){
+                                frappe.call({
+                                    'method': 'erpnext.stock.utils.get_stock_balance',
+                                    'args': {
+                                        'item_code': d.get_value('item_code'),
+                                        'warehouse': d.get_value('warehouse'),
+                                        'with_valuation_rate': 1
+                                    },
+                                    'callback': function(res){
+                                        if (res && res.message && res.message.length == 2 && res.message[1] > 0){
+                                            d.set_value('valuation_rate', res.message[1]);
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                },
+                {
+                    'fieldname': 'serial_no',
+                    'label': __('Serial No Received'),
+                    'fieldtype': 'Data',
+                    'reqd': 1
+                },
+                {
+                    "fieldtype": "Column Break"
+                },
+                {
+                    'fieldtype': 'Currency',
+                    'fieldname': 'valuation_rate',
+                    'label': __('Valuation Rate'),
+                    'on_make': function(field){
+                        debugger;
+                        field.refresh();
+                        field.$input.on('change', function(ev){
+                            if (d.get_value('valuation_rate') && d.get_value('percent_for_return')){
+                                d.set_value('credit_amount', (
+                                    d.get_value('valuation_rate') * get.value('percent_for_return') / 100.0)
+                                );
+                            }
+                            return true;
+                        });
+                    }
+                },
+                {
+                    'fieldtype': 'Percent',
+                    'fieldname': 'percent_for_return',
+                    'label': __('Percent Amount'),
+                    'default': frappe.defaults.get_global_default('percent_for_return'),
+                    'on_make': function(field){
+                        debugger;
+                        field.refresh();
+                        field.$input.on('change', function(ev){
+                            if (d.get_value('valuation_rate') && d.get_value('percent_for_return')){
+                                d.set_value('credit_amount', (
+                                    d.get_value('valuation_rate') * get.value('percent_for_return') / 100.0)
+                                );
+                            }
+                            return true;
+                        });
+                    }
+                },
+                {
+                    'fieldtype': 'Currency',
+                    'fieldname': 'credit_amount',
+                    'label': __('Credit Amount'),
+                    'reqd': 1
+                }
+            ]
+        }
+        frm.add_custom_button(__("Create Return"), function(){
+            frappe.prompt(
+                fields,
+                function(args){
+                    delete args['valuation_rate'];
+                    delete args['percent_for_return'];
+                    args['company'] = frm.doc.company;
+                    args['customer'] = frm.doc.customer;
+                    args['project'] = frm.doc.name;
+                    frappe.call({
+                        'method': 'cs.events.make_return',
+                        'args': args,
+                        'freeze_message': __('Please wait a few moments while we process your return'),
+                        'freeze': true
+                    });
+                },
+                __('Serial Number for Return')
+            );
+        });
+    }
+});
