@@ -306,7 +306,8 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount, compan
 				'price_list_rate': 0.0,
 				'rate': 0.0,
 				'amount': 0.0,
-				'allow_zero_valuation_rate': 1
+				'allow_zero_valuation_rate': 1,
+				'serial_no': serial_no
 			}]
 		})
 		dn.run_method('get_missing_values')
