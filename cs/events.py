@@ -284,7 +284,7 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount, compan
 		})
 		ste.run_method('get_missing_values')
 		ste.run_method('save')
-		ste.run_method('validate')
+		ste.run_method('submit')
 
 		msgs.append(frappe._('New Stock Entry `{0}` created!').format(ste.name))
 
