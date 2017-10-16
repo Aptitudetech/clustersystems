@@ -260,7 +260,7 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount, compan
 		now = now_datetime().strftime('%Y-%m-%d %H:%M:%S').split(' ')
 		uom = frappe.db.get_value('Item', item_code, 'stock_uom')
 		ste = frappe.new_doc('Stock Entry').update({
-			'purpose': 'Stock Entry',
+			'purpose': 'Material Receipt',
 			'naming_series': 'STE-',
 			'company': company,
 			'posting_date': now[0],
