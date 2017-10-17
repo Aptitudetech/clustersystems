@@ -250,7 +250,8 @@ def get_company_address(company):
 
 
 @frappe.whitelist()
-def make_return(customer, item_code, serial_no, warehouse, credit_amount, company, project):
+def make_return(customer, item_code, serial_no, warehouse, credit_amount, 
+	company, project, reconcile_against=None):
 	'''Automates the return generation against a project'''
 
 	from erpnext.stock.doctype.delivery_note.delivery_note import make_sales_return
@@ -350,6 +351,10 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount, compan
 	rt.run_method('get_missing_values')
 	rt.run_method('save')
 	rt.run_method('submit')
+
+	if reconcile_against is not None:
+		frappe.get_doc('Delivery Note', reconcile_against).update_status('Closed')
+		rt.update_status('Closed')
 
 	msgs.append(frappe._('New Return `{0}` created!').format(rt.name))
 

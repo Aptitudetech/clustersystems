@@ -131,7 +131,6 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                         }
                     },
                     'on_make': function(field){
-                        debugger;
                         field.refresh();
                         field.$input.on('awesomplete-selectcomplete', function(ev){
                             if (cur_dialog.get_value('warehouse') && cur_dialog.get_value('item_code')){
@@ -162,9 +161,6 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                             "is_stock_item": 1,
                             "has_serial_no": 1
                         };
-                        //if (frm.doc.__onload && frm.doc.__onload.dn_item_codes){
-                        //    filters['name'] = ['in', frm.doc.__onload.dn_item_codes];
-                        //}
                         return {
                             'query': "erpnext.controllers.queries.item_query",
                             'filters': filters
@@ -172,7 +168,6 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                     },
                     'default': frm.doc.__onload && frm.doc.__onload.dn_item_codes && frm.doc.__onload.dn_item_codes.length ? frm.doc.__onload.dn_item_codes[0] : null,
                     'on_make': function(field){
-                        debugger;
                         field.refresh();
                         field.$input.on('awesomplete-selectcomplete', function(ev){
                             if (cur_dialog.get_value('warehouse') && cur_dialog.get_value('item_code')){
@@ -200,6 +195,12 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                     'reqd': 1
                 },
                 {
+                    'label': __('Reconcile against'),
+                    'fieldname': 'reconcile_against',
+                    'fieldtype': 'Select',
+                    'reqd': 1
+                },
+                {
                     "fieldtype": "Column Break"
                 },
                 {
@@ -207,7 +208,6 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                     'fieldname': 'valuation_rate',
                     'label': __('Valuation Rate'),
                     'on_make': function(field){
-                        debugger;
                         field.refresh();
                         field.$input.on('change', function(ev){
                             if (cur_dialog.get_value('valuation_rate') && cur_dialog.get_value('percent_for_return')){
@@ -225,7 +225,6 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                     'label': __('Percent Amount'),
                     'default': frappe.defaults.get_global_default('percent_for_return'),
                     'on_make': function(field){
-                        debugger;
                         field.refresh();
                         field.$input.on('change', function(ev){
                             if (cur_dialog.get_value('valuation_rate') && cur_dialog.get_value('percent_for_return')){
@@ -246,7 +245,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
             ]
         }
         frm.add_custom_button(__("Create Return"), function(){
-            frappe.prompt(
+            var d = frappe.prompt(
                 fields,
                 function(args){
                     delete args['valuation_rate'];
@@ -263,7 +262,18 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                 },
                 __('Serial Number for Return')
             );
+            frappe.call({
+                'method': 'cs.api.get_against_reconcilable',
+                'args': {
+                    'project': frm.doc.name
+                },
+                'callback': function(res){
+                    if (res && res.message){
+                        d.fields_dict.reconcile_against.options = res.message;
+                        d.refresh_field('reconcile_against');
+                    }
+                }
+            })
         });
     }
 });
-
