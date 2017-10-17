@@ -4,10 +4,9 @@ from __future__ import unicode_literals
 
 import frappe
 import frappe.defaults
-from frappe.utils import now_datetime
+from frappe.utils import now_datetime, flt
 
 from cs import tasks
-
 
 def get_project_autoname( doc, new_name ):
 	def autoname():
@@ -255,6 +254,7 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount, compan
 	'''Automates the return generation against a project'''
 
 	from erpnext.stock.doctype.delivery_note.delivery_note import make_sales_return
+
 	msgs = []
 	if not frappe.db.exists('Serial No', serial_no) or not frappe.db.get_value('Serial No', serial_no, 'creation_document_type'):
 		now = now_datetime().strftime('%Y-%m-%d %H:%M:%S').split(' ')
@@ -339,8 +339,8 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount, compan
 		item.update({
 			'item_code': item_code,
 			'qty': -1,
-			'rate': credit_amount,
-			'amount': -credit_amount,
+			'rate': flt(credit_amount),
+			'amount': -flt(credit_amount),
 			'uom': uom,
 			'stock_uom': uom,
 			'conversion_factor': 1.0,
