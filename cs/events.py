@@ -366,12 +366,17 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount,
 
 
 def on_project_onload(doc, handler=None):
-	if doc.get('template_type') == 'Swap and Warranty' \
-		and frappe.db.exists('Delivery Note', {'project': doc.name}):
-		item_codes = []
-		for dn in frappe.get_all('Delivery Note', {'project': doc.name}):
-			dn = frappe.get_doc('Delivery Note', dn)
-			for item in dn.items:
-				if item.item_code not in item_codes:
-					item_codes.append(item.item_code)
-		doc.get('__onload').dn_item_codes = item_codes
+	if doc.get('template_type') == 'Swap and Warranty':
+		if frappe.db.exists('Delivery Note', {'project': doc.name}):
+			item_codes = []
+			for dn in frappe.get_all('Delivery Note', {'project': doc.name}):
+				dn = frappe.get_doc('Delivery Note', dn)
+				for item in dn.items:
+					if item.item_code not in item_codes:
+						item_codes.append(item.item_code)
+			doc.get('__onload').dn_item_codes = item_codes
+		all_closed = (
+			frappe.db.count('Delivery Note', {'project': doc.name, 'is_return': 0}) \
+				== frappe.db.count('Delivery Note', {'project', doc.name, 'is_return': 0, 'closed': 0})
+			)
+		doc.get('__onload').all_dn_closed = all_closed

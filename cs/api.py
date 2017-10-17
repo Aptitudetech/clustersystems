@@ -19,10 +19,8 @@ def get_against_reconcilable(project):
 			`tabDelivery Note`.`posting_date` as `date`,
 			`tabDelivery Note`.`customer` as `customer`,
 			`tabDelivery Note`.`project` as `project`,
-			`tabDelivery Note`.`company` as `company`,
 			`tabDelivery Note Item`.`item_code` as `item_code`,
 			`tabDelivery Note Item`.`item_name` as `item_name`,
-			`tabDelivery Note Item`.`description` as `description`,
 			`tabDelivery Note Item`.`qty` as `qty`,
 			`tabDelivery Note Item`.`amount` as `amount`,
 			`tabDelivery Note Item`.`serial_no` as `serial_no`

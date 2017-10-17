@@ -112,7 +112,7 @@ frappe.ui.form.on('Lead', {
 });
 
 frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
-    if (!frm.doc.__islocal && frm.doc.template_type === "Swap and Warranty"){
+    if (!frm.doc.__islocal && frm.doc.template_type === "Swap and Warranty" && !frm.doc.__islocal.all_dn_closed){
         if (frm.doc.template_type === "Swap and Warranty"){
             var fields = [
                 {
@@ -257,7 +257,10 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                         'method': 'cs.events.make_return',
                         'args': args,
                         'freeze_message': __('Please wait a few moments while we process your return'),
-                        'freeze': true
+                        'freeze': true,
+                        'callback': function(res){
+                            frm.reload_doc();
+                        }
                     });
                 },
                 __('Serial Number for Return')
