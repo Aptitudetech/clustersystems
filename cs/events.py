@@ -313,7 +313,7 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount, compan
 		dn.run_method('get_missing_values')
 		dn.run_method('save')
 		dn.run_method('submit')
-		dn.update_status('Completed')
+		dn.update_status('Closed')
 
 		msgs.append(frappe._('New Delivery Note `{0}` created!').format(dn.name))
 	else:
