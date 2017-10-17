@@ -9,7 +9,7 @@ from frappe.model.document import Document
 from frappe.utils import nowdate
 
 class DeliveryNoteReconciliation(Document):
-	def on_load(self):
+	def onload(self):
 		if self.details:
 			self.items = []
 
@@ -32,8 +32,8 @@ class DeliveryNoteReconciliation(Document):
 			`tabDelivery Note`.`docstatus` = 1
 			AND `tabDelivery Note`.`is_return` = 0
 			AND `tabDelivery Note`.`status` != "Closed"
-			AND `tabDelivery Note Item`.`amount` > 0 and round(`tabDeliveryNote`.`billed_amt` *
-			    ifnull(`tabDelivery Note Item`.`conversion_rate`, 1), 2) < `tabDelivery Note Item`.`base_amount`
+			AND `tabDelivery Note Item`.`amount` > 0 and round(`tabDelivery Note Item`.`billed_amt` *
+			    ifnull(`tabDelivery Note`.`conversion_rate`, 1), 2) < `tabDelivery Note Item`.`base_amount`
 		"""
 
 		for row in frappe.db.sql(sql, as_dict=True):
