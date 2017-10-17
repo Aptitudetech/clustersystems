@@ -4,14 +4,14 @@
 
 from __future__ import unicode_literals
 import frappe
-import itertools
+from itertools import groupby
 from frappe.model.document import Document
 from frappe.utils import nowdate
 
 class DeliveryNoteReconciliation(Document):
 	def onload(self):
 		if self.details:
-			self.items = []
+			self.details = []
 
 		sql = """
 		select 
@@ -34,6 +34,7 @@ class DeliveryNoteReconciliation(Document):
 			AND `tabDelivery Note`.`status` != "Closed"
 			AND `tabDelivery Note Item`.`amount` > 0 and round(`tabDelivery Note Item`.`billed_amt` *
 			    ifnull(`tabDelivery Note`.`conversion_rate`, 1), 2) < `tabDelivery Note Item`.`base_amount`
+		ORDER BY `tabDelivery Note`.`name`
 		"""
 
 		for row in frappe.db.sql(sql, as_dict=True):
@@ -51,21 +52,34 @@ class DeliveryNoteReconciliation(Document):
 					srow['amount'] = srow['amount'] / sri
 					self.append('details', srow)
 
-	def reconcile_or_bill(self):
-		for ac, items in groupby(self.items, lambda r: r['action']):
+	def validate(self):
+		msgs = []
+		for row in self.get('details', {'action': 'reconcile'}):
+			if not row.reconcile_against:
+				msgs.append(frappe._('One refrence document is required to reconcile `{0}` at row # `{1}`').format(
+					row.delivery_note,
+					row.idx
+				))
+		if msgs:
+			frappe.throw('<br>'.join(msgs))
+
+	def run(self):
+		self.run_method('validate')
+		for ac, items in groupby(self.details, lambda r: r.get('action')):
 			if not ac:
 				continue
 			elif ac == "Bill":
 				self.bill_items(list(items))
 			elif ac == "Reconcile":
 				self.reconcile_items(list(items))
+		self.run_method('onload')
 
-	def reconcile_items(self, items):
+	def bill_items(self, items):
 		from erpnext.stock.doctype.delivery_note.delivery_note import make_sales_invoice
 		msgs = []
-		for dn, items in groupby(item, lambda r: r['item_code']):
+		for dn, items in groupby(items, lambda r: r.get('delivery_note')):
 			items = list(items)
-			item_codes = set([r['item_code'] for r in items])
+			item_codes = set([r.get('item_code') for r in items])
 			si = make_sales_invoice(dn)
 
 			for i, r in enumerate(si.get('items')):
@@ -76,7 +90,7 @@ class DeliveryNoteReconciliation(Document):
 					'rate': 0.0,
 					'serial_no': '' 
 				})
-				for sr in filter(items, lambda _r: _r.get('item_code') == r.get('item_code')):
+				for sr in filter(lambda _r: _r.get('item_code') == r.get('item_code'), items):
 					r.qty += sr.qty
 					r.rate += sr.amount
 					r.serial_no += sr.serial_no
@@ -92,40 +106,36 @@ class DeliveryNoteReconciliation(Document):
 		if msgs:
 			frappe.msgprint('<br>'.join(msgs))
 
-	def bill_items(self, items):
+	def reconcile_items(self, items):
 		from erpnext.accounts.party import get_party_account
 
 		items = list(items)
-		item_codes = set([r['item_code'] for r in items])
-		dns = set([r.delivery_note for r in items])
-		all_dns = dns & set([r.reconcile_against for r in items])
-		credit_amount = sum([r.amount for r in items])
-
+		item_codes = set([r.get('item_code') for r in items])
+		dns = [r.delivery_note for r in items]
+		all_dns = [r.reconcile_against for r in items if r.reconcile_against] + dns
 		party_acc = get_party_account('Customer', items[0].customer, items[0].company)
-		stock_devaluation_acc = frappe.db.get_value('Cluster System Settings', 'Cluster System Settings', 'account_for_stock_devaluation')
+		settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
+		stock_devaluation_acc = settings.get('account_for_stock_devaluation')
 
-		accounts = [
-			{
-				'account': party_acc,
-				'party_type': 'Customer',
-				'party': customer,
-				'reference_type': 'Delivery Note',
-				'reference_name': item.reconcile_against,
-				'credit_in_account_currency': item.amount,
-				'credit': item.amount
-			} for item in items
-		] + [
-			{
+		if not stock_devaluation_acc:
+			frappe.throw(frappe._('You need to setup an Stock Devaluation account, under Cluster System Settings'))
+
+		accounts = []
+		for delivery_note in set(all_dns):
+			d_or_c = frappe.db.get_value('Delivery Note', delivery_note, 'grand_total')
+			accounts.append({
 				'account': party_acc,
 				'party_type': 'Customer',
 				'party': items[0].customer,
 				'reference_type': 'Delivery Note',
 				'reference_name': delivery_note,
-				'debit_in_account_currency': abs(frappe.db.get_value('Delivery Note', delivery_note, 'outstanding_amount')),
-				'debit': abs(frappe.db.get_value('Delivery Note', delivery_note, 'outstanding_amount'))
-			}
-			for delivery_note in dns
-		]
+				'debit_in_account_currency': abs(d_or_c) if d_or_c <= 0 else 0.0,
+				'debit': abs(d_or_c) if d_or_c <= 0 else 0.0,
+				'credit_in_account_currency': abs(d_or_c) if d_or_c > 0 else 0.0,
+				'credit': abs(d_or_c) if d_or_c > 0 else 0.0,
+				'is_advance': 'Yes' if d_or_c > 0 else 'No'
+			})
+			frappe.get_doc('Delivery Note', delivery_note).update_status('Closed')
 
 		je = frappe.new_doc('Journal Entry').update({
 			'entry_type': 'Journal Entry',
@@ -134,16 +144,26 @@ class DeliveryNoteReconciliation(Document):
 			'company': items[0].company,
 			'accounts': accounts
 		})
-		je.run_method('get_balance')
-		je.accounts[-1].account = stock_devaluation_acc
+		je.run_method('set_total_debit_credit')
+		if abs(je.difference):
+			je.append('accounts', {
+				"account": stock_devaluation_acc,
+				"debit": abs(min([je.difference, 0.0])),
+				"debit_in_account_currency": abs(min([je.difference, 0.0])),
+				"credit": abs(max([je.difference, 0.0])),
+				"credit_in_account_currency": abs(max([je.difference, 0.0]))
+			})
+		for row in je.accounts:
+			setattr(row, '_validate_selects', lambda *args: None)	
 		je.run_method('save')
 		je.run_method('submit')
 		frappe.msgprint(frappe._('The Delivery Notes {0} are reconciled in the Journal Entry `{1}`').format(
-			', '.join(map(lambda s: '`{0}`'.format(s)), all_dns),
+			', '.join(map(lambda s: '`{0}`'.format(s), all_dns)),
 			je.name
 		))
 
 
+@frappe.whitelist()
 def get_against_reconcilable(customer, item_code):
 	from copy import copy
 	sql = """
@@ -163,9 +183,9 @@ def get_against_reconcilable(customer, item_code):
 		INNER JOIN `tabDelivery Note Item` ON `tabDelivery Note Item`.`parent` = `tabDelivery Note`.`name`
 		WHERE
 			`tabDelivery Note`.`docstatus` = 1
-			AND `tabDelivery Note`.`is_return` = 0
+			AND `tabDelivery Note`.`is_return` = 1
 			AND `tabDelivery Note`.`status` != "Closed"
-			AND `tabDelivery Note Item`.`amount` < 0 and `tabDelivery Note`.`outstanding_amount` < 0
+			AND `tabDelivery Note Item`.`amount` < 0
 			AND `tabDelivery Note`.`customer` = %s
 			AND `tabDelivery Note Item`.`item_code` = %s
 		"""
@@ -177,7 +197,7 @@ def get_against_reconcilable(customer, item_code):
 		for sr in row[-1].splitlines():
 			if not sr:
 				continue
-			r = copy(row)
+			r = list(copy(row))
 			r[-1] = sr
 			ret.append({
 				'label': ' | '.join(map(unicode, row)),

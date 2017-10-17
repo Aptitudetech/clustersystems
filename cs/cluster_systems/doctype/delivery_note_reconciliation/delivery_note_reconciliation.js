@@ -3,16 +3,21 @@
 
 frappe.ui.form.on('Delivery Note Reconciliation', {
 	refresh: function(frm) {
-
+		frm.disable_save();
+		frm.page.set_primary_action(__('Run'), function(){
+			frm.runscript('run', frm);
+		}, null, __('Running'))
 	}
 });
 
 frappe.ui.form.on('Delivery Note Reconciliation Detail', {
 	'get_against_reconcilable': function(frm, cdt, cdn){
-		var grid_row = frm.fields_dict.details.grid.grid_rows_by_docname[d.name].grid,
-			df = frappe.utils.filter_dict(grid_row.docfields, {'fieldname': 'reconcile_against'})[0];
+		debugger;
+		var d = locals[cdt][cdn],
+                    grid_row = frm.fields_dict.details.grid.grid_rows_by_docname[d.name].grid_form,
+		    df = frappe.utils.filter_dict(grid_row.fields, {'fieldname': 'reconcile_against'})[0];
 		frappe.call({
-			'method': 'cs.cs.doctype.delivery_note_reconciliation.delivery_note_reconciliation.get_against_reconcilable',
+			'method': 'cs.cluster_systems.doctype.delivery_note_reconciliation.delivery_note_reconciliation.get_against_reconcilable',
 			'args': {
 				'customer': d.customer,
 				'item_code': d.item_code
@@ -23,6 +28,7 @@ frappe.ui.form.on('Delivery Note Reconciliation Detail', {
 				} else {
 					df.options = [];
 				}
+				grid_row.refresh_field(df.fieldname);
 			}
 		});
 	},
