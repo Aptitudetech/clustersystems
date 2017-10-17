@@ -269,8 +269,8 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                 },
                 'callback': function(res){
                     if (res && res.message){
-                        d.fields_dict.reconcile_against.options = res.message;
-                        d.refresh_field('reconcile_against');
+                        d.fields_dict.reconcile_against.df.options = res.message;
+                        d.fields_dict.reconcile_against.refresh();
                     }
                 }
             })
