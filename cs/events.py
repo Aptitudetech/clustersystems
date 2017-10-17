@@ -313,6 +313,7 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount, compan
 		dn.run_method('get_missing_values')
 		dn.run_method('save')
 		dn.run_method('submit')
+		frappe.db.set_value('Delivery Note', dn.name, 'status', 'Completed')
 
 		msgs.append(frappe._('New Delivery Note `{0}` created!').format(dn.name))
 	else:
@@ -344,8 +345,7 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount, compan
 			'uom': uom,
 			'stock_uom': uom,
 			'conversion_factor': 1.0,
-			'serial_no': serial_no,
-			'allow_zero_valuation_rate': 1
+			'serial_no': serial_no
 		})
 
 	rt.run_method('get_missing_values')
