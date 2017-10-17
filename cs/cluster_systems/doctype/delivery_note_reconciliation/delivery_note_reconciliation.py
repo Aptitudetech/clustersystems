@@ -110,10 +110,9 @@ class DeliveryNoteReconciliation(Document):
 		from erpnext.accounts.party import get_party_account
 
 		items = list(items)
-		item_codes = set([r.get('item_code') for r in items])
+		item_codes = list(set([r.get('item_code') for r in items]))
 		dns = [r.delivery_note for r in items]
 		all_dns = [r.reconcile_against for r in items if r.reconcile_against] + dns
-		party_acc = get_party_account('Customer', items[0].customer, items[0].company)
 		settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
 		stock_devaluation_acc = settings.get('account_for_stock_devaluation')
 
@@ -124,16 +123,13 @@ class DeliveryNoteReconciliation(Document):
 		for delivery_note in set(all_dns):
 			d_or_c = frappe.db.get_value('Delivery Note', delivery_note, 'grand_total')
 			accounts.append({
-				'account': party_acc,
-				'party_type': 'Customer',
-				'party': items[0].customer,
+				'account': frappe.db.get_value('Item', item_codes[0], 'expense_account'),
 				'reference_type': 'Delivery Note',
 				'reference_name': delivery_note,
 				'debit_in_account_currency': abs(d_or_c) if d_or_c <= 0 else 0.0,
 				'debit': abs(d_or_c) if d_or_c <= 0 else 0.0,
 				'credit_in_account_currency': abs(d_or_c) if d_or_c > 0 else 0.0,
 				'credit': abs(d_or_c) if d_or_c > 0 else 0.0,
-				'is_advance': 'Yes' if d_or_c > 0 else 'No'
 			})
 			frappe.get_doc('Delivery Note', delivery_note).update_status('Closed')
 
@@ -187,11 +183,10 @@ def get_against_reconcilable(customer, item_code):
 			AND `tabDelivery Note`.`status` != "Closed"
 			AND `tabDelivery Note Item`.`amount` < 0
 			AND `tabDelivery Note`.`customer` = %s
-			AND `tabDelivery Note Item`.`item_code` = %s
 		"""
 
 	ret = []
-	for row in frappe.db.sql(sql, (customer, item_code), as_dict=False):
+	for row in frappe.db.sql(sql, (customer), as_dict=False):
 		if not row[-1] or not row[-1].splitlines():
 			continue
 		for sr in row[-1].splitlines():
