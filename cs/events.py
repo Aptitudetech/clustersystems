@@ -388,21 +388,25 @@ def on_project_onload(doc, handler=None):
 			'customer': frappe.get_doc('Customer', doc.customer).as_dict()
 		}
 
-		contact = get_default_contact(doc.customer)
+		contact = get_default_contact("Customer", doc.customer)
 		if contact:
-			card_data['contact'] = contact.as_dict()
+			card_data['contact'] = frappe.get_doc("Contact", contact).as_dict()
 
 		so = frappe.db.exists('Sales Order', {'project': doc.name})
 		address = None
 		if so:
-			address = frappe.db.get_value('Sales Order', so, customer_address)
+			address = frappe.db.get_value('Sales Order', so, "customer_address")
 		if address:
 			address_doc = frappe.get_doc('Address', address_doc)
 		else:
-			address_doc = get_default_address('Customer', doc.customer)
+			address_name = get_default_address('Customer', doc.customer)
+			if address_name:
+				address_doc = frappe.get_doc('Address', address_name)
+			else:
+				address_doc = None
 		
 		card_data.update({
-			'address': address_doc.as_dict(),
-			'address_display': get_address_display(address_doc.as_dict())
+			'address': address_doc.as_dict() if address_doc else None,
+			'address_display': get_address_display(address_doc.as_dict()) if address_doc else None
 		})
 		card_data['card_template'] = open(frappe.get_app_path('cs', 'public', 'templates', 'customer_card.html'), 'rb').read()
