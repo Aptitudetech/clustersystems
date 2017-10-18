@@ -366,6 +366,9 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount,
 
 
 def on_project_onload(doc, handler=None):
+	from frappe.contacts.doctype.contact.contact import get_primary_contact
+	from frappe.contacts.doctype.address.address import get_default_address, get_address_display
+
 	if doc.get('template_type') == 'Swap and Warranty':
 		if frappe.db.exists('Delivery Note', {'project': doc.name}):
 			item_codes = []
@@ -380,3 +383,24 @@ def on_project_onload(doc, handler=None):
 				== frappe.db.count('Delivery Note', {'project', doc.name, 'is_return': 0, 'closed': 0})
 			)
 		doc.get('__onload').all_dn_closed = all_closed
+
+	if doc.get('customer'):
+		card_data = doc.get('__onload').customer_card = {
+			'customer': frappe.get_doc('Customer', doc.customer).as_dict(),
+			'contact': get_primary_contact(doc.customer)
+		}
+
+		so = frappe.db.exists('Sales Order', {'project': doc.name})
+		address = None
+		if so:
+			address = frappe.db.get_value('Sales Order', so, customer_address)
+		if address:
+			address_doc = frappe.get_doc('Address', address_doc)
+		else:
+			address_doc = get_default_address('Customer', doc.customer)
+		
+		card_data.update({
+			'address': address_doc.as_dict(),
+			'address_display': get_address_display(address_doc.as_dict())
+		})
+				
