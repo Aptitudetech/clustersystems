@@ -1,18 +1,33 @@
 <div class="col-sm-6 col-md-6">
-	{% if (address) { %}
+	{% if (customer) { %}
 	<div class="address-box">
 		<p class="h6">
-			{% if (address.is_primary_address) { %}
-			<span class="text-mutted">({%= __("Primary") %})</span>{% } %}
-			{% if (address.is_shipping_address) { %}
-			<span class="text-mutted">({%= __("Shipping") %})</span>{% } %}
+			{% if (customer.customer_name) { %}
+			<span class="text-muted">{%= customer.customer_name %}</span><br/>{% } %}
+			{% if (customer.trade_name) { %}
+			<span class="text-muted">{%= customer.trade_name %}</span>{% } %}
 		</p>
-		<p>{%= address_display %}</p>
+		
+		{% if (customer.tax_id || customer.tax_id_1 || customer.tax_id_2 || customer.mev) { %}
+		<p>
+			{% if (customer.tax_id) { %}
+				{%= __("Tax ID") %}: {%= customer.tax_id %}<br/>
+			{% } %}
+			{% if (customer.tax_id_2) { %}
+				{%= __("Tax ID 2") %}: {%= customer.tax_id_2 %}<br/>
+			{% } %}
+			{% if (customer.tax_id_3) { %}
+				{%= __("Tax ID 3") %}: {%= customer.tax_id_3 %}<br/>
+			{% } %}
+			{% if (customer.mev) { %}
+				{%= __("Code d'Accès MEV") %}: {%= customer.mev %}
+			{% } %}
+		{% } %}
+		</p>
 	</div>
 	{% } else { %}
-	<p class="text-muted small">{%= __("No address added yet.") %}</p>
+	<p class="text-muted small">{%= __("No customer added yet.") %}</p>
 	{% } %}
-
 	{% if (contact) { %}
 	<div class="address-box">
 		<p class="h6">
@@ -40,35 +55,19 @@
 	{% } else { %}
 	<p class="text-muted small">{%= __("No contacts added yet.") %}</p>
 	{% } %}
-</div>
+</div>	
 <div class="col-sm-6 col-md-6">
-	{% if (customer) { %}
+	{% if (address) { %}
 	<div class="address-box">
 		<p class="h6">
-			{% if (customer.customer_name) { %}
-			<span class="text-muted">{%= customer.customer_name %}</span>{% } %}
-			{% if (customer.trade_name) { %}
-			<span class="text-muted">{%= customer.trade_name %}</span>{% } %}
+			{% if (address.is_primary_address) { %}
+			<span class="text-mutted">({%= __("Primary") %})</span>{% } %}
+			{% if (address.is_shipping_address) { %}
+			<span class="text-mutted">({%= __("Shipping") %})</span>{% } %}
 		</p>
-		
-		{% if (customer.tax_id || customer.tax_id_1 || customer.tax_id_2 || customer.mev) { %}
-		<p>
-			{% if (customer.tax_id) { %}
-				{%= __("Tax ID") %}: {%= customer.tax_id %}<br/>
-			{% } %}
-			{% if (customer.tax_id_2) { %}
-				{%= __("Tax ID 2") %}: {%= customer.tax_id_2 %}<br/>
-			{% } %}
-			{% if (customer.tax_id_3) { %}
-				{%= __("Tax ID 3") %}: {%= customer.tax_id_3 %}<br/>
-			{% } %}
-			{% if (customer.mev) { %}
-				{%= __("Code d'Accès MEV") %}: {%= customer.mev %}
-			{% } %}
-		{% } %}
-		</p>
+		<p>{%= address_display %}</p>
 	</div>
 	{% } else { %}
-	<p class="text-muted small">{%= __("No customer added yet.") %}</p>
+	<p class="text-muted small">{%= __("No address added yet.") %}</p>
 	{% } %}
-</div>	
+</div>
