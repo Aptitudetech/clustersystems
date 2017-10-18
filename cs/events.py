@@ -101,7 +101,10 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 	dn.flags.ignore_mandatory = True
 	dn.flags.ignore_permissions = True
 	dn.insert()
-	for row in doc.items:
+	for row in dn.items:
+		item = doc.get('items', {'item_code': row.item_code})
+		if item and item[0].notes:
+			frappe.db.set_value(row.doctype, row.name, 'notes', item[0].notes, update_modified=False)
 		if row.get("serial_no"):
 			frappe.db.set_value(row.doctype, row.name, 'serial_no', None, update_modified=False)
 
