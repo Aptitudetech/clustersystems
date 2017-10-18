@@ -285,6 +285,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                 {
                     'customer': frm.doc.__onload.customer_card.customer,
                     'address': frm.doc.__onload.customer_card.address,
+                    'address_display': frm.doc.__onload.customer_card.address_display,
                     'contact': frm.doc.__onload.customer_card.contact
                 }
             )
