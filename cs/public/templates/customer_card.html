@@ -53,17 +53,18 @@
 		
 		{% if (customer.tax_id || customer.tax_id_1 || customer.tax_id_2 || customer.mev) { %}
 		<p>
-		{% if (customer.tax_id) { %}
-			{%= __("Tax ID") %}: {%= customer.tax_id %}
-		{% } %}
-		{% if (customer.tax_id_2) { %}
-			{%= __("Tax ID 1") %}: {%= customer.tax_id_2 %}
-		{% } %}
-		{% if (customer.tax_id_3) { %}
-			{%= __("Tax ID 2") %}: {%= customer.tax_id_3 %}
-		{% } %}
-		{% if (customer.mev) { %}
-			{%= __("Code d'Accès MEV") %}: {%= customer.mev %}
+			{% if (customer.tax_id) { %}
+				{%= __("Tax ID") %}: {%= customer.tax_id %}
+			{% } %}
+			{% if (customer.tax_id_2) { %}
+				{%= __("Tax ID 1") %}: {%= customer.tax_id_2 %}
+			{% } %}
+			{% if (customer.tax_id_3) { %}
+				{%= __("Tax ID 2") %}: {%= customer.tax_id_3 %}
+			{% } %}
+			{% if (customer.mev) { %}
+				{%= __("Code d'Accès MEV") %}: {%= customer.mev %}
+			{% } %}
 		{% } %}
 		</p>
 	</div>
