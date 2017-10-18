@@ -24,14 +24,15 @@
 		</p>
 		{% if (contact.phone || contact.mobile_no || contact.email_id) { %}
 		<p>
-		{% if(contact.phone) { %}
-			{%= __("Phone") %}: {%= contact.phone %}<br>
-		{% } %}
-		{% if(contact.mobile_no) { %}
-			{%= __("Mobile No.") %}: {%= contact.mobile_no %}<br>
-		{% } %}
-		{% if(contact.email_id) { %}
-			{%= __("Email Address") %}: {%= contact.email_id %}
+			{% if(contact.phone) { %}
+				{%= __("Phone") %}: {%= contact.phone %}<br>
+			{% } %}
+			{% if(contact.mobile_no) { %}
+				{%= __("Mobile No.") %}: {%= contact.mobile_no %}<br>
+			{% } %}
+			{% if(contact.email_id) { %}
+				{%= __("Email Address") %}: {%= contact.email_id %}
+			{% } %}
 		{% } %}
 		</p>
 	</div>
