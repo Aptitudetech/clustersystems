@@ -378,11 +378,10 @@ def on_project_onload(doc, handler=None):
 					if item.item_code not in item_codes:
 						item_codes.append(item.item_code)
 			doc.get('__onload').dn_item_codes = item_codes
-		all_closed = (
-			frappe.db.count('Delivery Note', {'project': doc.name, 'is_return': 0}) \
-				== frappe.db.count('Delivery Note', {'project', doc.name, 'is_return': 0, 'closed': 0})
-			)
-		doc.get('__onload').all_dn_closed = all_closed
+		
+		dns_closed = frappe.db.count('Delivery Note', {'project': doc.name, 'is_return': ["=", 0]})
+		all_closed = frappe.db.count('Delivery Note', {'project': doc.name, 'is_return': ["=", 0], 'closed': 0})
+		doc.get('__onload').all_dn_closed = (all_closed == dns_closed)
 
 	if doc.get('customer'):
 		card_data = doc.get('__onload').customer_card = {
