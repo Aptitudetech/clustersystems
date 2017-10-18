@@ -1,0 +1,62 @@
+<div class="col-sm-6 col-md-6">
+	{% if (address) { %}
+	<div class="address-box">
+		<p class="h6">
+			{% if (address.is_primary_address) { %}
+			<span class="text-mutted">({%= __("Primary") %})</span>{% } %}
+			{% if (address.is_shipping_address) { %}
+			<span class="text-mutted">({%= __("Shipping") %})</span>{% } %}
+		</p>
+		<p>{%= address_display %}</p>
+	</div>
+	{% } else { %}
+	<p class="text-muted small">{%= __("No address added yet.") %}</p>
+	{% } %}
+	{% if (contact) { %}
+	<div class="address-box">
+		<p class="h6">
+			{% if (contact.is_primary_contact) { %}
+			<span class="text-muted">({%= __("Primary") %})</span>{% } %}
+			{% if (contact.designation) { %}
+			<span class="text-muted">
+				&ndash; {%= contact.designation %}
+			</span>{% } %}
+		</p>
+		{% if (contact.phone || contact.mobile_no || contact.email_id) { %}
+		<p>
+		{% if(contact.phone) { %}
+			{%= __("Phone") %}: {%= contact.phone %}<br>
+		{% } %}
+		{% if(contact.mobile_no) { %}
+			{%= __("Mobile No.") %}: {%= contact.mobile_no %}<br>
+		{% } %}
+		{% if(contact.email_id) { %}
+			{%= __("Email Address") %}: {%= contact.email_id %}
+		{% } %}
+		</p>
+	</div>
+	{% } else { %}
+	<p class="text-muted small">{%= __("No contacts added yet.") %}</p>
+	{% } %}
+</div>
+<div class="col-sm-6 col-md-6">
+	{% if (customer) { %}
+	<div class="address-box">
+		<p class="h6">
+			{% if (customer.customer_name) { %}
+			<span class="text-muted">{%= customer.customer_name %}</span>{% } %}
+			{% if (customer.trade_name) { %}
+			<span class="text-muted">{%= customer.trade_name %}</span>{% } %}
+		</p>
+		{% if (customer.tax_id || customer.tax_id_1 || customer.tax_id_2 || customer.mev) { %}
+		<p>
+		{% [["tax_id", __("Tax ID")], ["tax_id_1", __("Tax ID 1")] , ["tax_id_2", __("Tax ID 2")], ["mev", __("Code d'Accès MEV")]].forEach(function(field){ %}
+		{% if (customer[field[0]]){ %}
+			{%= __(field[1]) %}: {%= customer[field[1]] %}
+		{% } }) %}
+		</p>
+	</div>
+	{% } else { %}
+	<p class="text-muted small">{%= __("No customer added yet.") %}</p>
+	{% } %}
+</div>	

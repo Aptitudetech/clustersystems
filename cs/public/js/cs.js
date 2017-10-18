@@ -279,4 +279,15 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
             })
         });
     }
+    if (frm.doc.__onload.customer_card){
+        frm.dashboard.add_section(
+            frappe.render_template(frm.doc.__onload.customer_card.card_template,
+                {
+                    'customer': frm.doc.__onload.customer_card.customer,
+                    'address': frm.doc.__onload.customer_card.address,
+                    'contact': frm.doc.__onload.customer_card.contact
+                }
+            )
+        )
+    }
 });

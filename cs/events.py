@@ -403,4 +403,4 @@ def on_project_onload(doc, handler=None):
 			'address': address_doc.as_dict(),
 			'address_display': get_address_display(address_doc.as_dict())
 		})
-				
+		card_data['card_template'] = open(frappe.get_app_path('cs', 'public', 'templates', 'customer_card.html'), 'rb').read()
