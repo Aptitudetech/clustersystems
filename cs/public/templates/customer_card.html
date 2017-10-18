@@ -12,6 +12,7 @@
 	{% } else { %}
 	<p class="text-muted small">{%= __("No address added yet.") %}</p>
 	{% } %}
+
 	{% if (contact) { %}
 	<div class="address-box">
 		<p class="h6">
@@ -55,6 +56,7 @@
 		{% [["tax_id", __("Tax ID")], ["tax_id_1", __("Tax ID 1")] , ["tax_id_2", __("Tax ID 2")], ["mev", __("Code d'Accès MEV")]].forEach(function(field){ %}
 		{% if ( customer[field[0]] ) { %}{%= __(field[1]) %}: {%= customer[field[1]] %}{% } %}
 		{% }); %}
+		{% } %}
 		</p>
 	</div>
 	{% } else { %}
