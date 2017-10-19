@@ -43,9 +43,13 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 
 	if frappe.defaults.get_global_default( 'auto_create_project' ):
 		filters = {'project_type': 'Template'}
-		if frappe.db.exists( 'Project', {'project_type': 'Template', 
-			'template_type': doc.template_type } ):
-			filters['template_type'] = doc.template_type
+		if not frappe.db.exists( 'Project', 
+			{'project_type': 'Template',  'template_type': doc.template_type } ):
+			frappe.throw(frappe._('A Project Template of type "{0}" does not exist, please create one').format(
+				doc.template_type
+			))
+		
+		filters['template_type'] = doc.template_type
 		base_project = frappe.get_doc('Project', filters)
 		project_name = " - ".join([
 			doc.customer_name,
@@ -246,7 +250,7 @@ def on_delivery_note_onsubmit(doc, handler):
 	sales_invoice = make_sales_invoice( doc.name )
 	sales_invoice.flags.ignore_permissions = True
 	sales_invoice.insert()
-	if doc.get('project') and
+	if doc.get('project') and \
 		frappe.db.get_value('Project', doc.project, 'template_type') != template_for_swap:
 		sales_invoice.submit()
 
