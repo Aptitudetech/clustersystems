@@ -28,9 +28,9 @@ def get_against_reconcilable(project):
 		INNER JOIN `tabDelivery Note Item` ON `tabDelivery Note Item`.`parent` = `tabDelivery Note`.`name`
 		WHERE
 			`tabDelivery Note`.`docstatus` = 1
-			AND `tabDelivery Note`.`is_return` = 1
+			AND `tabDelivery Note`.`is_return` = 0
 			AND `tabDelivery Note`.`status` != "Closed"
-			AND `tabDelivery Note Item`.`amount` < 0
+			AND `tabDelivery Note Item`.`amount` > 0
             AND `tabDelivery Note`.`project` = %s
 		"""
 
