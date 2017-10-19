@@ -391,10 +391,8 @@ def on_project_onload(doc, handler=None):
 	from frappe.contacts.doctype.address.address import get_default_address, get_address_display
 
 	template_for_swap = frappe.defaults.get_global_default('template_for_swap')
-	if not template_for_swap:
-		frappe.throw(frappe._('You must first configure the `Template for Swap` option in `Cluster System Settings` before you can continue'))
 
-	if doc.get('template_type') == template_for_swap:
+	if template_for_swap and doc.get('template_type') == template_for_swap:
 		if frappe.db.exists('Delivery Note', {'project': doc.name}):
 			item_codes = []
 			for dn in frappe.get_all('Delivery Note', {'project': doc.name}):
@@ -422,7 +420,7 @@ def on_project_onload(doc, handler=None):
 		if so:
 			address = frappe.db.get_value('Sales Order', so, "customer_address")
 		if address:
-			address_doc = frappe.get_doc('Address', address_doc)
+			address_doc = frappe.get_doc('Address', address)
 		else:
 			address_name = get_default_address('Customer', doc.customer)
 			if address_name:
