@@ -73,7 +73,18 @@ frappe.ui.form.on('Quotation', {
                                     'delivery_date': args.delivery_date
                                 },
                                 'freeze_message': __('Please wait a few moments while we process your quote'),
-                                'freeze': true
+                                'freeze': true,
+                                'callback': function(res){
+                                    if (res && !res.exc){
+                                        frappe.confirm(format('{0}<br><br>{1}', [
+                                            res.message.msgs.join('<br>'),
+                                            format(__('Do you want to continue to the Project `{0}`'), 
+                                            [res.message.project_name])
+                                        ]), function(){
+                                            frappe.set_route('Form', 'Project', res.message.project_name)
+                                        });
+                                    }
+                                }
                             });
                         },
                         title.join(__('and')),
