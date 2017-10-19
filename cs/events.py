@@ -405,7 +405,7 @@ def on_project_onload(doc, handler=None):
 			doc.get('__onload').dn_item_codes = item_codes
 		
 		dns_closed = frappe.db.count('Delivery Note', {'project': doc.name, 'is_return': ["=", 0]})
-		all_closed = frappe.db.count('Delivery Note', {'project': doc.name, 'is_return': ["=", 0], 'closed': 0})
+		all_closed = frappe.db.count('Delivery Note', {'project': doc.name, 'is_return': ["=", 0], 'status': 'Closed'})
 		doc.get('__onload').all_dn_closed = (all_closed == dns_closed)
 
 	if doc.get('customer'):
