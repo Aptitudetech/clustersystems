@@ -91,7 +91,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 		
 	template_for_swap = frappe.defaults.get_global_default('template_for_swap')
 	if not template_for_swap:
-		frappe.throw(frappe._('Configure first the `Template for Swap` option in `Cluster System Settings` before to continue the process'))
+		frappe.throw(frappe._('You must first configure the `Template for Swap` option in `Cluster System Settings` before you can continue'))
 
 	if doc.get('template_type') == template_for_swap:
 		so.taxes = []
@@ -229,7 +229,11 @@ def on_delivery_note_onsubmit(doc, handler):
 	'''Makes a new invoice when delivery note submitted'''
 
 	from erpnext.stock.doctype.delivery_note.delivery_note import make_sales_invoice
+	template_for_swap = frappe.defaults.get_global_default('template_for_swap')
+	if not template_for_swap:
+		frappe.throw(frappe._('You must first configure the `Template for Swap` option in `Cluster System Settings` before you can continue'))
 	
+
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
 	if not settings.enable_delivery_note_automation \
 		or doc.is_return:
@@ -384,7 +388,7 @@ def on_project_onload(doc, handler=None):
 
 	template_for_swap = frappe.defaults.get_global_default('template_for_swap')
 	if not template_for_swap:
-		frappe.throw(frappe._('Configure first the `Template for Swap` option in `Cluster System Settings` before to continue the process'))
+		frappe.throw(frappe._('You must first configure the `Template for Swap` option in `Cluster System Settings` before you can continue'))
 
 	if doc.get('template_type') == template_for_swap:
 		if frappe.db.exists('Delivery Note', {'project': doc.name}):
