@@ -232,7 +232,6 @@ def on_delivery_note_onsubmit(doc, handler):
 	template_for_swap = frappe.defaults.get_global_default('template_for_swap')
 	if not template_for_swap:
 		frappe.throw(frappe._('You must first configure the `Template for Swap` option in `Cluster System Settings` before you can continue'))
-	
 
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
 	if not settings.enable_delivery_note_automation \
@@ -247,12 +246,12 @@ def on_delivery_note_onsubmit(doc, handler):
 	sales_invoice = make_sales_invoice( doc.name )
 	sales_invoice.flags.ignore_permissions = True
 	sales_invoice.insert()
-	sales_invoice.submit()
+	if doc.get('project') != template_for_swap:
+		sales_invoice.submit()
 
-	if settings.notify_invoice_to_customer and sales_invoice.contact_email:
-		tasks.send_invoice_to_customer( sales_invoice.name )
-		#enqueue( 'cs.tasks.send_invoice_to_customer', sales_invoice.name )
-
+		if settings.notify_invoice_to_customer and sales_invoice.contact_email:
+			tasks.send_invoice_to_customer( sales_invoice.name )
+			#enqueue( 'cs.tasks.send_invoice_to_customer', sales_invoice.name )
 
 def on_task_validate( doc, handler ):
 	if doc.status == "Closed" and frappe.db.get_value("Task", doc.name, "status") != "Closed":
