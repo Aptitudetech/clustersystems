@@ -87,8 +87,11 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 
 		so.project = new_project.name
 		
+	template_for_swap = frappe.defaults.get_global_default('template_for_swap')
+	if not template_for_swap:
+		frappe.throw(__('Configure first the `Template for Swap` option in `Cluster System Settings` before to continue the process'))
 
-	if doc.get('template_type') == 'Swap and Warranty':
+	if doc.get('template_type') == template_for_swap:
 		so.taxes = []
 
 	so.submit()
@@ -226,7 +229,7 @@ def on_delivery_note_onsubmit(doc, handler):
 		return
 
 	if doc.get('project') \
-		and frappe.db.get_value('Project', doc.project, 'template_type') == 'Swap and Warranty':
+		and frappe.db.get_value('Project', doc.project, 'template_type') == template_for_swap:
 		doc.taxes = []
 		return
 	
@@ -372,7 +375,11 @@ def on_project_onload(doc, handler=None):
 	from frappe.contacts.doctype.contact.contact import get_default_contact
 	from frappe.contacts.doctype.address.address import get_default_address, get_address_display
 
-	if doc.get('template_type') == 'Swap and Warranty':
+	template_for_swap = frappe.defaults.get_global_default('template_for_swap')
+	if not template_for_swap:
+		frappe.throw(__('Configure first the `Template for Swap` option in `Cluster System Settings` before to continue the process'))
+
+	if doc.get('template_type') == template_for_swap:
 		if frappe.db.exists('Delivery Note', {'project': doc.name}):
 			item_codes = []
 			for dn in frappe.get_all('Delivery Note', {'project': doc.name}):

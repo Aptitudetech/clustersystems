@@ -10,5 +10,5 @@ class ClusterSystemSettings(Document):
 	def validate( self ):
 	    	for field in ['auto_create_project', 'auto_assign_dn_to', 
 				'percent_for_return', 'warehouse_for_return', 
-				'warehouse_for_replacement', 'account_for_stock_devaluation']:
+				'warehouse_for_replacement', 'template_for_swap']:
     			frappe.defaults.add_global_default(field, self.get(field))
