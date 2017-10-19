@@ -26,7 +26,8 @@ frappe.ui.form.on('Quotation', {
 				frappe.confirm(format('<center>{0}<br><br>{1}</center>',
 					[__('Process Successfull'), format(
 						__('Do you want to continue to the Project `{0}`'),
-						[res.message.project_name])),
+						[res.message.project_name])]
+					),
 					function(){
 						frappe.set_route('Form', 'Project', res.message.project_name)
 					});
