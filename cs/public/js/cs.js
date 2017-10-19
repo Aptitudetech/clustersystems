@@ -123,138 +123,137 @@ frappe.ui.form.on('Lead', {
 });
 
 frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
-    if (!frm.doc.__islocal && frm.doc.template_type === "Swap and Warranty" && !frm.doc.__islocal.all_dn_closed){
-        if (frm.doc.template_type === "Swap and Warranty"){
-            var fields = [
-                {
-                    'fieldname': 'warehouse',
-                    'label': __('Warehouse for Return'),
-                    'fieldtype': 'Link',
-                    'options': 'Warehouse',
-                    'reqd': 1,
-                    'default': frappe.defaults.get_global_default("warehouse_for_return"),
-                    'get_query': function(){
-                        return {
-                            filters: {
-                                'is_group': ["=", 0],
-                                'company': frm.doc.company
-                            }
+    if (!frm.doc.__islocal && frm.doc.template_type === frappe.defaults.get_global_default('template_for_swap') && !frm.doc.__islocal.all_dn_closed){
+
+        var fields = [
+            {
+                'fieldname': 'warehouse',
+                'label': __('Warehouse for Return'),
+                'fieldtype': 'Link',
+                'options': 'Warehouse',
+                'reqd': 1,
+                'default': frappe.defaults.get_global_default("warehouse_for_return"),
+                'get_query': function(){
+                    return {
+                        filters: {
+                            'is_group': ["=", 0],
+                            'company': frm.doc.company
                         }
-                    },
-                    'on_make': function(field){
-                        field.refresh();
-                        field.$input.on('awesomplete-selectcomplete', function(ev){
-                            if (cur_dialog.get_value('warehouse') && cur_dialog.get_value('item_code')){
-                                frappe.call({
-                                    'method': 'erpnext.stock.utils.get_stock_balance',
-                                    'args': {
-                                        'item_code': cur_dialog.get_value('item_code'),
-                                        'warehouse': cur_dialog.get_value('warehouse'),
-                                        'with_valuation_rate': 1
-                                    },
-                                    'callback': function(res){
-                                        if (res && res.message && res.message.length == 2 && res.message[1] > 0){
-                                            cur_dialog.set_value('valuation_rate', res.message[1]);
-                                        }
-                                    }
-                                });
-                            }
-                        });
                     }
                 },
-                {
-                    'fieldname': 'item_code',
-                    'label': __('Item Code'),
-                    'fieldtype': 'Link',
-                    'options': 'Item',
-                    'get_query': function(doc){
-                        var filters = {
-                            "is_stock_item": 1,
-                            "has_serial_no": 1
-                        };
-                        return {
-                            'query': "erpnext.controllers.queries.item_query",
-                            'filters': filters
+                'on_make': function(field){
+                    field.refresh();
+                    field.$input.on('awesomplete-selectcomplete', function(ev){
+                        if (cur_dialog.get_value('warehouse') && cur_dialog.get_value('item_code')){
+                            frappe.call({
+                                'method': 'erpnext.stock.utils.get_stock_balance',
+                                'args': {
+                                    'item_code': cur_dialog.get_value('item_code'),
+                                    'warehouse': cur_dialog.get_value('warehouse'),
+                                    'with_valuation_rate': 1
+                                },
+                                'callback': function(res){
+                                    if (res && res.message && res.message.length == 2 && res.message[1] > 0){
+                                        cur_dialog.set_value('valuation_rate', res.message[1]);
+                                    }
+                                }
+                            });
                         }
-                    },
-                    'default': frm.doc.__onload && frm.doc.__onload.dn_item_codes && frm.doc.__onload.dn_item_codes.length ? frm.doc.__onload.dn_item_codes[0] : null,
-                    'on_make': function(field){
-                        field.refresh();
-                        field.$input.on('awesomplete-selectcomplete', function(ev){
-                            if (cur_dialog.get_value('warehouse') && cur_dialog.get_value('item_code')){
-                                frappe.call({
-                                    'method': 'erpnext.stock.utils.get_stock_balance',
-                                    'args': {
-                                        'item_code': cur_dialog.get_value('item_code'),
-                                        'warehouse': cur_dialog.get_value('warehouse'),
-                                        'with_valuation_rate': 1
-                                    },
-                                    'callback': function(res){
-                                        if (res && res.message && res.message.length == 2 && res.message[1] > 0){
-                                            cur_dialog.set_value('valuation_rate', res.message[1]);
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                    }
-                },
-                {
-                    'fieldname': 'serial_no',
-                    'label': __('Serial No Received'),
-                    'fieldtype': 'Data',
-                    'reqd': 1
-                },
-                {
-                    'label': __('Reconcile against'),
-                    'fieldname': 'reconcile_against',
-                    'fieldtype': 'Select',
-                    'reqd': 1
-                },
-                {
-                    "fieldtype": "Column Break"
-                },
-                {
-                    'fieldtype': 'Currency',
-                    'fieldname': 'valuation_rate',
-                    'label': __('Valuation Rate'),
-                    'on_make': function(field){
-                        field.refresh();
-                        field.$input.on('change', function(ev){
-                            if (cur_dialog.get_value('valuation_rate') && cur_dialog.get_value('percent_for_return')){
-                                cur_dialog.set_value('credit_amount', (
-                                    cur_dialog.get_value('valuation_rate') * cur_dialog.get_value('percent_for_return') / 100.0)
-                                );
-                            }
-                            return true;
-                        });
-                    }
-                },
-                {
-                    'fieldtype': 'Percent',
-                    'fieldname': 'percent_for_return',
-                    'label': __('Percent Amount'),
-                    'default': frappe.defaults.get_global_default('percent_for_return'),
-                    'on_make': function(field){
-                        field.refresh();
-                        field.$input.on('change', function(ev){
-                            if (cur_dialog.get_value('valuation_rate') && cur_dialog.get_value('percent_for_return')){
-                                cur_dialog.set_value('credit_amount', (
-                                    cur_dialog.get_value('valuation_rate') * cur_dialog.get_value('percent_for_return') / 100.0)
-                                );
-                            }
-                            return true;
-                        });
-                    }
-                },
-                {
-                    'fieldtype': 'Currency',
-                    'fieldname': 'credit_amount',
-                    'label': __('Credit Amount'),
-                    'reqd': 1
+                    });
                 }
-            ]
-        }
+            },
+            {
+                'fieldname': 'item_code',
+                'label': __('Item Code'),
+                'fieldtype': 'Link',
+                'options': 'Item',
+                'get_query': function(doc){
+                    var filters = {
+                        "is_stock_item": 1,
+                        "has_serial_no": 1
+                    };
+                    return {
+                        'query': "erpnext.controllers.queries.item_query",
+                        'filters': filters
+                    }
+                },
+                'default': frm.doc.__onload && frm.doc.__onload.dn_item_codes && frm.doc.__onload.dn_item_codes.length ? frm.doc.__onload.dn_item_codes[0] : null,
+                'on_make': function(field){
+                    field.refresh();
+                    field.$input.on('awesomplete-selectcomplete', function(ev){
+                        if (cur_dialog.get_value('warehouse') && cur_dialog.get_value('item_code')){
+                            frappe.call({
+                                'method': 'erpnext.stock.utils.get_stock_balance',
+                                'args': {
+                                    'item_code': cur_dialog.get_value('item_code'),
+                                    'warehouse': cur_dialog.get_value('warehouse'),
+                                    'with_valuation_rate': 1
+                                },
+                                'callback': function(res){
+                                    if (res && res.message && res.message.length == 2 && res.message[1] > 0){
+                                        cur_dialog.set_value('valuation_rate', res.message[1]);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            },
+            {
+                'fieldname': 'serial_no',
+                'label': __('Serial No Received'),
+                'fieldtype': 'Data',
+                'reqd': 1
+            },
+            {
+                'label': __('Reconcile against'),
+                'fieldname': 'reconcile_against',
+                'fieldtype': 'Select',
+                'reqd': 1
+            },
+            {
+                "fieldtype": "Column Break"
+            },
+            {
+                'fieldtype': 'Currency',
+                'fieldname': 'valuation_rate',
+                'label': __('Valuation Rate'),
+                'on_make': function(field){
+                    field.refresh();
+                    field.$input.on('change', function(ev){
+                        if (cur_dialog.get_value('valuation_rate') && cur_dialog.get_value('percent_for_return')){
+                            cur_dialog.set_value('credit_amount', (
+                                cur_dialog.get_value('valuation_rate') * cur_dialog.get_value('percent_for_return') / 100.0)
+                            );
+                        }
+                        return true;
+                    });
+                }
+            },
+            {
+                'fieldtype': 'Percent',
+                'fieldname': 'percent_for_return',
+                'label': __('Percent Amount'),
+                'default': frappe.defaults.get_global_default('percent_for_return'),
+                'on_make': function(field){
+                    field.refresh();
+                    field.$input.on('change', function(ev){
+                        if (cur_dialog.get_value('valuation_rate') && cur_dialog.get_value('percent_for_return')){
+                            cur_dialog.set_value('credit_amount', (
+                                cur_dialog.get_value('valuation_rate') * cur_dialog.get_value('percent_for_return') / 100.0)
+                            );
+                        }
+                        return true;
+                    });
+                }
+            },
+            {
+                'fieldtype': 'Currency',
+                'fieldname': 'credit_amount',
+                'label': __('Credit Amount'),
+                'reqd': 1
+            }
+        ];
         frm.add_custom_button(__("Create Return"), function(){
             var d = frappe.prompt(
                 fields,
