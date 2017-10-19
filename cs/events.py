@@ -246,7 +246,8 @@ def on_delivery_note_onsubmit(doc, handler):
 	sales_invoice = make_sales_invoice( doc.name )
 	sales_invoice.flags.ignore_permissions = True
 	sales_invoice.insert()
-	if doc.get('project') != template_for_swap:
+	if doc.get('project') and
+		frappe.db.get_value('Project', doc.project, 'template_type') != template_for_swap:
 		sales_invoice.submit()
 
 		if settings.notify_invoice_to_customer and sales_invoice.contact_email:
