@@ -308,7 +308,9 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
 frappe.ui.form.on('Stock Entry', 'before_submit', function(frm, cdt, cdn){
     if (frm.doc.purpose === "Material Transfer" 
         && frm.doc.to_warehouse == frappe.defaults.get_global_default('warehouse_for_loaner')
-        && frm.doc.items.filter(function(row){ return row.serial_no && row.serial_no.length > 0 })){
+        && frm.doc.items.filter(function(row){ return row.serial_no && row.serial_no.length > 0 })
+        && !frm.doc.__customer_for_loan){
+        frappe.validated = false;
         frappe.prompt([
             {
                 'label': __('Customer'),
@@ -319,7 +321,8 @@ frappe.ui.form.on('Stock Entry', 'before_submit', function(frm, cdt, cdn){
             }],
             function(args){
                 frm.doc.__customer_for_loan = args.customer;
+                frappe.validated = true;
             }
         );
     }
-})
+});

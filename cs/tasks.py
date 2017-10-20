@@ -245,7 +245,6 @@ def notify_task_close_to_customer( name ):
 			send_email = True,
 		)
 
-
 def hourly():
 	"""Group of Tasks that should run on every hour"""
 	
