@@ -148,7 +148,6 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 	settings = frappe.get_doc("Cluster System Settings", "Cluster System Settings")
 	if settings.send_wellcome_email and settings.wellcome_reply:
 		tasks.send_wellcome_email( doc.quotation_to, doc.lead or doc.customer )
-		#enqueue( 'cs.tasks.send_wellcome_email', doc.quotation_to, doc.lead or doc.customer )
 
 
 def quotation_onload(doc, handler=None):
@@ -189,8 +188,6 @@ def on_lead_oninsert(doc, handler=None):
 	if doc.appointment_date or doc.appointment_location:
 		tasks.send_appointment_schedule( doc.name )
 		tasks.create_appointment_event( doc.name )
-		#enqueue( 'cs.tasks.send_appointment_schedule', doc.name )
-		#enqueue( 'cs.tasks.create_appointment_event', doc.name )
 
 
 def on_lead_onupdate(doc, handler=None):
@@ -206,8 +203,6 @@ def on_lead_onupdate(doc, handler=None):
 			onload.get("original_appointment_location") != doc.appointment_location ):
 				tasks.send_appointment_update( doc.name )
 				tasks.update_appointment_event( doc.name )
-				#enqueue( 'cs.tasks.send_appointment_update', doc.name )
-				#enqueue( 'cs.tasks.update_appointment_event', doc.name )
 				onload["original_appointment_date"] = doc.appointment_date
 				onload["original_appointment_location"] = doc.appointment_location
 
@@ -256,7 +251,7 @@ def on_delivery_note_onsubmit(doc, handler):
 
 		if settings.notify_invoice_to_customer and sales_invoice.contact_email:
 			tasks.send_invoice_to_customer( sales_invoice.name )
-			#enqueue( 'cs.tasks.send_invoice_to_customer', sales_invoice.name )
+	
 
 def on_task_validate( doc, handler ):
 	if doc.status == "Closed" and frappe.db.get_value("Task", doc.name, "status") != "Closed":
@@ -433,10 +428,9 @@ def on_project_onload(doc, handler=None):
 			'address_display': get_address_display(address_doc.as_dict()) if address_doc else None
 		})
 		card_data['card_template'] = open(frappe.get_app_path('cs', 'public', 'templates', 'customer_card.html'), 'rb').read()
-<<<<<<< HEAD
 
 
-def on_stock_entry_onsubmit(doc, handler=None):
+def on_stock_entry_on_submit(doc, handler=None):
 	if doc.purpose == "Material Transfer":
 		for row in doc.items:
 			if row.t_warehouse == frappe.defaults.get_global_default("warehouse_for_loan") \
@@ -451,5 +445,3 @@ def on_stock_entry_onsubmit(doc, handler=None):
 						'customer': customer,
 						'customer_name': customer_name
 					})
-=======
->>>>>>> 4e4b58cbdffba001fc85e376e6e59cb0a2f5330e

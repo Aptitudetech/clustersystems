@@ -135,11 +135,7 @@ frappe.ui.form.on('Lead', {
 
 frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
     if (frm.doc.template_type === frappe.defaults.get_global_default('template_for_swap') 
-<<<<<<< HEAD
         && frm.doc.__onload && !frm.doc.__onload.all_dn_closed){
-=======
-	&& frm.doc.__onload && !frm.doc.__onload.all_dn_closed){
->>>>>>> 4e4b58cbdffba001fc85e376e6e59cb0a2f5330e
 
         var fields = [
             {
@@ -308,7 +304,6 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
         )
     }
 });
-<<<<<<< HEAD
 
 frappe.ui.form.on('Stock Entry', 'before_submit', function(frm, cdt, cdn){
     if (frm.doc.purpose === "Material Transfer" 
@@ -328,5 +323,3 @@ frappe.ui.form.on('Stock Entry', 'before_submit', function(frm, cdt, cdn){
         ]);
     }
 })
-=======
->>>>>>> 4e4b58cbdffba001fc85e376e6e59cb0a2f5330e

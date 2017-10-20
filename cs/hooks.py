@@ -113,6 +113,11 @@ doc_events = {
 		"onload": [
 			"cs.events.on_project_onload"
 		]
+	},
+	"Stock Entry": {
+		"on_submit": [
+			"cs.events.on_stock_entry_on_submit"
+		]
 	}
 }
 
