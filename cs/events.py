@@ -431,9 +431,13 @@ def on_project_onload(doc, handler=None):
 
 
 def on_stock_entry_on_submit(doc, handler=None):
+	warehouse_for_loaner = frappe.defaults.get_global_default("warehouse_for_loaner")
+	if not warehouse_for_loaner:
+		frappe.throw(frappe._("You must first configure the ` Warehouse for Loaner` option in `Cluster System Settings` before you can continue"))
+
 	if doc.purpose == "Material Transfer":
 		for row in doc.items:
-			if row.t_warehouse == frappe.defaults.get_global_default("warehouse_for_loan") \
+			if row.t_warehouse == warehouse_for_loaner \
 				and row.serial_no \
 				and doc.get('__customer_for_loan'):
 				customer = doc.get('__customer_for_loan')
