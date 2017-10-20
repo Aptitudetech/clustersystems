@@ -316,10 +316,10 @@ frappe.ui.form.on('Stock Entry', 'before_submit', function(frm, cdt, cdn){
                 'fieldtype': 'Link',
                 'options': 'Customer',
                 'reqd': 1
-            },
+            }],
             function(args){
                 frm.doc.__customer_for_loan = args.customer;
             }
-        ]);
+        );
     }
 })
