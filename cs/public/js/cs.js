@@ -20,7 +20,18 @@ frappe.ui.form.on('Quotation', {
                             'quote': frm.doc.name
                         },
                         'freeze_message': __('Please wait a few moments while we process your quote'),
-                        'freeze': true
+                        'freeze': true,
+			'callback': function(res){
+				if (res && res.exc) return;
+				frappe.confirm(format('<center>{0}<br><br>{1}</center>',
+					[__('Process Successfull'), format(
+						__('Do you want to continue to the Project `{0}`'),
+						[res.message.project_name])]
+					),
+					function(){
+						frappe.set_route('Form', 'Project', res.message.project_name)
+					});
+			}
                     });
                 } :
                 function() {
@@ -124,7 +135,11 @@ frappe.ui.form.on('Lead', {
 
 frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
     if (frm.doc.template_type === frappe.defaults.get_global_default('template_for_swap') 
+<<<<<<< HEAD
         && frm.doc.__onload && !frm.doc.__onload.all_dn_closed){
+=======
+	&& frm.doc.__onload && !frm.doc.__onload.all_dn_closed){
+>>>>>>> 4e4b58cbdffba001fc85e376e6e59cb0a2f5330e
 
         var fields = [
             {
@@ -141,26 +156,6 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                             'company': frm.doc.company
                         }
                     }
-                },
-                'on_make': function(field){
-                    field.refresh();
-                    field.$input.on('awesomplete-selectcomplete', function(ev){
-                        if (cur_dialog.get_value('warehouse') && cur_dialog.get_value('item_code')){
-                            frappe.call({
-                                'method': 'erpnext.stock.utils.get_stock_balance',
-                                'args': {
-                                    'item_code': cur_dialog.get_value('item_code'),
-                                    'warehouse': cur_dialog.get_value('warehouse'),
-                                    'with_valuation_rate': 1
-                                },
-                                'callback': function(res){
-                                    if (res && res.message && res.message.length == 2 && res.message[1] > 0){
-                                        cur_dialog.set_value('valuation_rate', res.message[1]);
-                                    }
-                                }
-                            });
-                        }
-                    });
                 }
             },
             {
@@ -181,18 +176,21 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                 'default': frm.doc.__onload && frm.doc.__onload.dn_item_codes && frm.doc.__onload.dn_item_codes.length ? frm.doc.__onload.dn_item_codes[0] : null,
                 'on_make': function(field){
                     field.refresh();
-                    field.$input.on('awesomplete-selectcomplete', function(ev){
-                        if (cur_dialog.get_value('warehouse') && cur_dialog.get_value('item_code')){
+                    field.$input.on('awesomplete-selectcomplete change', function(ev){
+                        if (cur_dialog.get_value('warehouse')){
                             frappe.call({
                                 'method': 'erpnext.stock.utils.get_stock_balance',
                                 'args': {
                                     'item_code': cur_dialog.get_value('item_code'),
-                                    'warehouse': cur_dialog.get_value('warehouse'),
+                                    'warehouse': frappe.defaults.get_global_default('warehouse_for_replacement'),
                                     'with_valuation_rate': 1
                                 },
                                 'callback': function(res){
                                     if (res && res.message && res.message.length == 2 && res.message[1] > 0){
                                         cur_dialog.set_value('valuation_rate', res.message[1]);
+					if (cur_dialog.get_value('valuation_rate') && cur_dialog.get_value('percent_for_return')){
+						cur_dialog.fields_dict.percent_for_return.$input.trigger('change');
+					}
                                     }
                                 }
                             });
@@ -283,11 +281,18 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                 },
                 'callback': function(res){
                     if (res && res.message){
-                        d.fields_dict.reconcile_against.df.options = res.message;
-                        d.fields_dict.reconcile_against.refresh();
+			setTimeout(function(){
+                            cur_dialog.fields_dict.reconcile_against.df.options = res.message;
+                            cur_dialog.fields_dict.reconcile_against.refresh();
+			}, 500);
                     }
                 }
-            })
+            });
+	    setTimeout(function(){
+		if (cur_dialog.get_value('item_code')){
+			cur_dialog.fields_dict.item_code.$input.trigger('change');
+		}
+	    }, 500);
         });
     }
     if (frm.doc.__onload.customer_card){
@@ -303,6 +308,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
         )
     }
 });
+<<<<<<< HEAD
 
 frappe.ui.form.on('Stock Entry', 'before_submit', function(frm, cdt, cdn){
     if (frm.doc.purpose === "Material Transfer" 
@@ -322,3 +328,5 @@ frappe.ui.form.on('Stock Entry', 'before_submit', function(frm, cdt, cdn){
         ]);
     }
 })
+=======
+>>>>>>> 4e4b58cbdffba001fc85e376e6e59cb0a2f5330e
