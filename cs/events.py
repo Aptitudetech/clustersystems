@@ -435,3 +435,20 @@ def on_project_onload(doc, handler=None):
 			'address_display': get_address_display(address_doc.as_dict()) if address_doc else None
 		})
 		card_data['card_template'] = open(frappe.get_app_path('cs', 'public', 'templates', 'customer_card.html'), 'rb').read()
+
+
+def on_stock_entry_onsubmit(doc, handler=None):
+	if doc.purpose == "Material Transfer":
+		for row in doc.items:
+			if row.t_warehouse == frappe.defaults.get_global_default("warehouse_for_loan") \
+				and row.serial_no \
+				and doc.get('__customer_for_loan'):
+				customer = doc.get('__customer_for_loan')
+				for serial_no in row.serial_no.splitlines():
+					if not serial_no:
+						continue
+					customer_name = frappe.db.get_value('Customer', customer)
+					frappe.get_doc('Serial No', serial_no).update({
+						'customer': customer,
+						'customer_name': customer_name
+					})
