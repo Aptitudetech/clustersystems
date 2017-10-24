@@ -79,12 +79,10 @@ frappe.ui.form.on('Quotation', {
                     frappe.prompt(
                         fields,
                         function(args){
+                            args['quote'] = frm.doc.name
                             frm.call({
                                 'method': 'cs.events.process_quote',
-                                'args': {
-                                    'quote': frm.doc.name,
-                                    'delivery_date': args.delivery_date
-                                },
+                                'args': args,
                                 'freeze_message': __('Please wait a few moments while we process your quote'),
                                 'freeze': true,
                                 'callback': function(res){
@@ -186,9 +184,10 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                                 'callback': function(res){
                                     if (res && res.message && res.message.length == 2 && res.message[1] > 0){
                                         cur_dialog.set_value('valuation_rate', res.message[1]);
-					if (cur_dialog.get_value('valuation_rate') && cur_dialog.get_value('percent_for_return')){
-						cur_dialog.fields_dict.percent_for_return.$input.trigger('change');
-					}
+                                        if (cur_dialog.get_value('valuation_rate') 
+                                            && cur_dialog.get_value('percent_for_return')){
+						                    cur_dialog.fields_dict.valuation_rate.$input.trigger('change');
+					                    }
                                     }
                                 }
                             });
@@ -222,6 +221,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                             cur_dialog.set_value('credit_amount', (
                                 cur_dialog.get_value('valuation_rate') * cur_dialog.get_value('percent_for_return') / 100.0)
                             );
+                            cur_dialog.fields_dict.credit_amount.refresh();
                         }
                         return true;
                     });
@@ -239,6 +239,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                             cur_dialog.set_value('credit_amount', (
                                 cur_dialog.get_value('valuation_rate') * cur_dialog.get_value('percent_for_return') / 100.0)
                             );
+                            cur_dialog.fields_dict.credit_amount.refresh();
                         }
                         return true;
                     });
@@ -251,7 +252,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                 'reqd': 1
             }
         ];
-        frm.add_custom_button(__("Create Return"), function(){
+        frm.add_custom_button(__("Return Item Value"), function(){
             var d = frappe.prompt(
                 fields,
                 function(args){

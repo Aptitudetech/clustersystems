@@ -260,6 +260,12 @@ def on_task_on_update( doc, handler=None ):
 	if doc.status == "Closed" and doc.get('__onload').original_status != "Closed":
 		tasks.notify_task_close_to_customer( doc.name )
 
+	if frappe.db.count('Task', {'project': doc.project, 'status': 'Closed'}) == frappe.db.count(
+		'Tasks', {'project': doc.project}):
+		frappe.get_doc('Project', doc.project).update({
+			'status': 'Closed'
+		}).save()
+
 
 @frappe.whitelist()
 def get_company_address(company):
@@ -276,7 +282,9 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount,
 	from erpnext.stock.doctype.delivery_note.delivery_note import make_sales_return
 
 	msgs = []
-	if not frappe.db.exists('Serial No', serial_no) or not frappe.db.get_value('Serial No', serial_no, 'creation_document_type'):
+	now = now_datetime().strftime('%Y-%m-%d %H:%M:%S').split(' ')
+	uom = frappe.db.get_value('Item', item_code, 'stock_uom')
+	if not frappe.db.exists('Serial No', serial_no) or not frappe.db.get_value('Serial No', serial_no, 'purchase_document_type'):
 		now = now_datetime().strftime('%Y-%m-%d %H:%M:%S').split(' ')
 		uom = frappe.db.get_value('Item', item_code, 'stock_uom')
 		ste = frappe.new_doc('Stock Entry').update({
@@ -308,6 +316,16 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount,
 
 		msgs.append(frappe._('New Stock Entry `{0}` created!').format(ste.name))
 
+	delivered = frappe.db.get_value('Delivery Note Item', filters={
+		'docstatus': 1,
+		'qty': ['>', 0],
+		'serial_no': ['like', "%" + serial_no + "%"]
+	}, fieldname="parent")
+	
+	if delivered:
+		dn = frappe.get_doc('Delivery Note', delivered)	
+	else:
+
 		dn = frappe.new_doc('Delivery Note').update({
 			'series': 'DN-',
 			'customer': customer,
@@ -335,22 +353,14 @@ def make_return(customer, item_code, serial_no, warehouse, credit_amount,
 		dn.run_method('submit')
 
 		msgs.append(frappe._('New Delivery Note `{0}` created!').format(dn.name))
-	else:
-		returned = frappe.db.exists('Delivery Note Item', {
-			'docstatus': 1,
-			'qty': ['<', 0],
-			'serial_no': ['like', "%" + serial_no + "%"]
-		})
-
-		if returned:
-			frappe.throw(_('The serial no `{0}` was already swapped!').format(serial_no))
-		else:
-			delivered = frappe.db.exists('Delivery Note Item', {
-				'docstatus': 1,
-				'qty': ['>', 0],
-				'serial_no': ['like', "%" + serial_no + "%"]
-			})
-			dn = frappe.get_doc('Delivery Note', delivered)	
+	
+	returned = frappe.db.exists('Delivery Note Item', {
+		'docstatus': 1,
+		'qty': ['<', 0],
+		'serial_no': ['like', "%" + serial_no + "%"]
+	})
+	if returned:
+		frappe.throw(_('The serial no `{0}` was already swapped!').format(serial_no))
 	
 	rt = make_sales_return(dn.name)
 	for i, item in enumerate(rt.items):

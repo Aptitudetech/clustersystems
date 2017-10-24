@@ -15,14 +15,7 @@ def get_against_reconcilable(project):
 	from copy import copy
 	sql = """
 		select 
-			`tabDelivery Note`.`name` as `delivery_note`,
-			`tabDelivery Note`.`posting_date` as `date`,
-			`tabDelivery Note`.`customer` as `customer`,
-			`tabDelivery Note`.`project` as `project`,
 			`tabDelivery Note Item`.`item_code` as `item_code`,
-			`tabDelivery Note Item`.`item_name` as `item_name`,
-			`tabDelivery Note Item`.`qty` as `qty`,
-			`tabDelivery Note Item`.`amount` as `amount`,
 			`tabDelivery Note Item`.`serial_no` as `serial_no`
 		FROM `tabDelivery Note`
 		INNER JOIN `tabDelivery Note Item` ON `tabDelivery Note Item`.`parent` = `tabDelivery Note`.`name`
