@@ -257,13 +257,6 @@ def on_task_before_change( doc, handler=None ):
 		and frappe.db.get_value("Task", doc.name, "status") != "Closed":
 		tasks.notify_task_close_to_customer( doc.name )
 
-		if frappe.db.count('Task', {'project': doc.project, 'status': 'Closed'}) == frappe.db.count(
-			'Tasks', {'project': doc.project}):
-			frappe.get_doc('Project', doc.project).update({
-				'status': 'Closed'
-			}).save()
-
-
 @frappe.whitelist()
 def get_company_address(company):
 	from frappe.contacts.doctype.address.address import get_company_address
@@ -439,6 +432,10 @@ def on_project_onload(doc, handler=None):
 		})
 		card_data['card_template'] = open(frappe.get_app_path('cs', 'public', 'templates', 'customer_card.html'), 'rb').read()
 
+
+def on_project_validate(doc, handler=None):
+	if len(doc.tasks) == doc.get('tasks', {'status': 'Closed'}) and doc.status != "Closed":
+		doc.status = "Closed"
 
 def on_stock_entry_on_submit(doc, handler=None):
 	warehouse_for_loaner = frappe.defaults.get_global_default("warehouse_for_loaner")

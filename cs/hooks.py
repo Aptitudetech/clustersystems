@@ -112,6 +112,9 @@ doc_events = {
 	"Project": {
 		"onload": [
 			"cs.events.on_project_onload"
+		],
+		"validate": [
+			"cs.events.on_project_validate"
 		]
 	},
 	"Stock Entry": {
