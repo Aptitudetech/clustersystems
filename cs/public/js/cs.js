@@ -47,7 +47,8 @@ frappe.ui.form.on('Quotation', {
                                 'fieldtype': 'Link',
                                 'label': __('Customer Group'),
                                 'options': 'Customer Group',
-                                'reqd': 1
+                                'reqd': 1,
+                                'fieldname': 'customer_group',
                             },
                             {
                                 'fieldtype': 'Select',
@@ -64,7 +65,8 @@ frappe.ui.form.on('Quotation', {
                                 'label': __('Territory'),
                                 'options': 'Territory',
                                 'reqd': 1,
-                                "default": frappe.defaults.get_global_default("territory")
+                                "default": frappe.defaults.get_global_default("territory"),
+                                'fieldname': 'territory'
                             }
                         ])
                     }

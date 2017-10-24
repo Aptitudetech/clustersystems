@@ -105,8 +105,11 @@ doc_events = {
 		]
 	},
 	"Task": {
-		"validate": [
-			"cs.events.on_task_validate"
+		"onload": [
+			"cs.events.on_task_onload"
+		],
+		"on_update": [
+			"cs.events.on_task_on_update"
 		]
 	},
 	"Project": {
