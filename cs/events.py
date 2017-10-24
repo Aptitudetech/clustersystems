@@ -252,19 +252,16 @@ def on_delivery_note_onsubmit(doc, handler):
 		if settings.notify_invoice_to_customer and sales_invoice.contact_email:
 			tasks.send_invoice_to_customer( sales_invoice.name )
 	
-
-def on_task_onload( doc, handler=None ):
-	doc.get('__onload').original_status = doc.status
-
-def on_task_on_update( doc, handler=None ):
-	if doc.status == "Closed" and doc.get('__onload').original_status != "Closed":
+def on_task_before_change( doc, handler=None ):
+	if doc.status == "Closed" \
+		and frappe.db.get_value("Task", doc.name, "status") != "Closed":
 		tasks.notify_task_close_to_customer( doc.name )
 
-	if frappe.db.count('Task', {'project': doc.project, 'status': 'Closed'}) == frappe.db.count(
-		'Tasks', {'project': doc.project}):
-		frappe.get_doc('Project', doc.project).update({
-			'status': 'Closed'
-		}).save()
+		if frappe.db.count('Task', {'project': doc.project, 'status': 'Closed'}) == frappe.db.count(
+			'Tasks', {'project': doc.project}):
+			frappe.get_doc('Project', doc.project).update({
+				'status': 'Closed'
+			}).save()
 
 
 @frappe.whitelist()
