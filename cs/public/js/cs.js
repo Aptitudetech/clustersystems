@@ -248,11 +248,11 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
             {
                 'fieldtype': 'Currency',
                 'fieldname': 'credit_amount',
-                'label': __('Credit Amount'),
+                'label': __('Return Item Value'),
                 'reqd': 1
             }
         ];
-        frm.add_custom_button(__("Return Item Value"), function(){
+        frm.add_custom_button(__("Create Return"), function(){
             var d = frappe.prompt(
                 fields,
                 function(args){
