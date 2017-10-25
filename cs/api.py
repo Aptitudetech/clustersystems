@@ -15,6 +15,7 @@ def get_against_reconcilable(project):
 	from copy import copy
 	sql = """
 		select 
+			`tabDelivery Note`.`name` as `name`,
 			`tabDelivery Note Item`.`item_code` as `item_code`,
 			`tabDelivery Note Item`.`serial_no` as `serial_no`
 		FROM `tabDelivery Note`
@@ -37,7 +38,7 @@ def get_against_reconcilable(project):
 			r = list(copy(row))
 			r[-1] = sr
 			ret.append({
-				'label': ' | '.join(map(unicode, row)),
+				'label': ' | '.join(map(unicode, row[1:])),
 				'value': row[0]
 			})
 

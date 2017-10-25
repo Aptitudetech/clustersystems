@@ -184,9 +184,9 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                                 'callback': function(res){
                                     if (res && res.message && res.message.length == 2 && res.message[1] > 0){
                                         cur_dialog.set_value('valuation_rate', res.message[1]);
-                                        if (cur_dialog.get_value('valuation_rate') && cur_dialog.get_value('percent_for_return')){
+                                        if (cur_dialog.get_value('percent_for_return')){
                                             cur_dialog.set_value('credit_amount', (
-                                                cur_dialog.get_value('valuation_rate') * cur_dialog.get_value('percent_for_return') / 100.0)
+                                                res.message[1] * cur_dialog.get_value('percent_for_return') / 100.0)
                                             );
                                             cur_dialog.fields_dict.credit_amount.refresh();
                                         }
