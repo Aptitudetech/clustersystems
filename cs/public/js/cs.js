@@ -312,7 +312,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                         'callback': function(res){
                             if (res.exc) return;
                             frm.reload_doc();
-                            frappe.msgprint(__('Process Successfull!'))
+                            frappe.msgprint(__('Process Successful!'))
                         },
                         'freeze': true,
                         'freeze_message': __('Please wait a few moments while we process your action!')

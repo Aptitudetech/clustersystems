@@ -339,7 +339,9 @@ def cancel_process_quote_return(project):
 		elif so.docstatus == 0:
 			frappe.delete_doc('Sales Order', so.name)
 
-	for qt in frappe.get_all('Quotation', filters={'project': project}, fields=['name']):
+	template_type, customer = frappe.db.get_value('Project', fieldname=['template_type', 'customer'],
+		filters={'name': project})
+	for qt in frappe.get_all('Quotation', filters={'template_type': template_type, 'customer': customer}, fields=['name']):
 		qt = frappe.get_doc('Quotation', qt.name)
 		if qt.docstatus == 1:
 			qt.cancel()
