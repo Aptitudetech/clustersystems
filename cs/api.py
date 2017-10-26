@@ -67,6 +67,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 		new_project.flags.ignore_mandatory = True
 		new_project.flags.ignore_permissions = True
 		new_project.insert()
+		new_project.db_set('status', 'Open', update_modified=False)
 
 		for task_name in frappe.get_all("Task", filters={"project": base_project.name}, order_by='idx'):
 			task = frappe.get_doc("Task", task_name)
