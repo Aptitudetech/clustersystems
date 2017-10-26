@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 from datetime import timedelta
 
 import frappe
+import ics
+from StringIO import StringIO
 from frappe import _
 from frappe.core.doctype.communication import email
 from frappe.utils import now_datetime, add_to_date, get_datetime
@@ -29,6 +31,20 @@ def send_appointment( doc, standard_reply ):
 	'''Sends any appointment communication and attach the communication to the Lead'''
 
 	reply = get_standard_reply( standard_reply, doc )
+
+	c = ics.Calendar()
+	e = ics.Event(
+		name=reply['message'],
+		begin=doc.appointment_date,
+		end=add_to_date(doc.add_to_date, hours=1),
+		description=reply['subject'],
+		location=doc.appointment_location
+	)
+	c.append(e)
+
+	attachment = StringIO()
+	attachment.writelines(c)
+
 	email.make(
 		'Lead',
 		doc.name,
@@ -36,7 +52,11 @@ def send_appointment( doc, standard_reply ):
 		reply['subject'],
 		sender = doc.modified_by,
 		recipients = doc.email_id,
-		send_email = True
+		send_email = True,
+		attachments=[{
+			'fname': 'meeting.ics',
+			'fcontent': attachment.getvalue()
+		}]
 	)
 
 
