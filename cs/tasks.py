@@ -211,8 +211,7 @@ def send_wellcome_email( doctype, name ):
 		frappe.throw("<b>".join(msgs))
 		
 
-def notify_task_close_to_customer( name ):
-	doc = frappe.get_doc('Task', name)
+def notify_task_close_to_customer( doc ):
 
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
 

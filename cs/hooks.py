@@ -106,7 +106,7 @@ doc_events = {
 	},
 	"Task": {
 		"before_change": [
-			"cs.events.on_task_before_change"
+			"cs.events.on_task_before_save"
 		],
 	},
 	"Project": {

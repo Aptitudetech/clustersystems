@@ -252,10 +252,10 @@ def on_delivery_note_onsubmit(doc, handler):
 		if settings.notify_invoice_to_customer and sales_invoice.contact_email:
 			tasks.send_invoice_to_customer( sales_invoice.name )
 	
-def on_task_before_change( doc, handler=None ):
+def on_task_before_save( doc, handler=None ):
 	if doc.status == "Closed" \
 		and frappe.db.get_value("Task", doc.name, "status") != "Closed":
-		tasks.notify_task_close_to_customer( doc.name )
+		tasks.notify_task_close_to_customer( doc )
 
 @frappe.whitelist()
 def get_company_address(company):
