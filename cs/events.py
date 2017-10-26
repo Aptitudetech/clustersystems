@@ -160,11 +160,8 @@ def on_project_onload(doc, handler=None):
 
 
 def on_project_validate(doc, handler=None):
-	if len(doc.tasks) == doc.get('tasks', {'status': 'Closed'}) and doc.status != "Closed":
-		doc.status = "Closed"
-
-
-def on_project_before_save(doc, handler=None):
+	if len(doc.tasks) == len(doc.get('tasks', {'status': 'Closed'})) and doc.status != "Closed":
+		doc.status = "Completed"
 	for task in doc.tasks:
 		if task.status == "Closed" and \
 			frappe.db.get_value('Task', task.task_id, 'status') != 'Closed':
