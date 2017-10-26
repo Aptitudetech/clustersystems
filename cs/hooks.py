@@ -104,18 +104,16 @@ doc_events = {
 			"cs.events.on_delivery_note_onsubmit"
 		]
 	},
-	"Task": {
-		"before_change": [
-			"cs.events.on_task_before_save"
-		],
-	},
 	"Project": {
 		"onload": [
 			"cs.events.on_project_onload"
 		],
 		"validate": [
 			"cs.events.on_project_validate"
-		]
+		],
+		"before_save": [
+			"cs.events.on_project_before_save"
+		],
 	},
 	"Stock Entry": {
 		"on_submit": [

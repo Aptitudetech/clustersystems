@@ -12,13 +12,16 @@ from frappe.utils.file_manager import get_file
 from frappe.contacts.doctype.contact.contact import get_default_contact
 
 
-def get_standard_reply( template_name, doc, language=None  ):
+def get_standard_reply( template_name, doc, language=None, **kwargs  ):
 	'''Returns the processed HTML of a standard reply with the given doc'''
 	
+	kw = doc.as_dict()
+	kw.update(kwargs)
+
 	standard_reply = frappe.get_doc('Standard Reply', template_name)
 	return {
-		'subject': frappe.render_template( _(standard_reply.subject, language), doc.as_dict() ),
-		'message': frappe.render_template( _(standard_reply.response, language), doc.as_dict() )
+		'subject': frappe.render_template( _(standard_reply.subject, language), kw ),
+		'message': frappe.render_template( _(standard_reply.response, language), kw )
 	}
 	
 
@@ -211,14 +214,14 @@ def send_wellcome_email( doctype, name ):
 		frappe.throw("<b>".join(msgs))
 		
 
-def notify_task_close_to_customer( doc ):
+def notify_task_close_to_customer( doc, project ):
 
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
 
 	if not settings.notify_task_close:
 		return
 
-	reply = get_standard_reply( settings.task_close_reply, doc )
+	reply = get_standard_reply( settings.task_close_reply, doc, project=project.as_dict() )
 
 	customer = frappe.db.get_value("Project", doc.project, "customer")
 	if not customer:
@@ -236,7 +239,7 @@ def notify_task_close_to_customer( doc ):
 	if email_id:
 		email.make(
 			'Task',
-			name,
+			doc.name,
 			reply['message'],
 			reply['subject'],
 			sender=frappe.local.session.user,

@@ -251,11 +251,6 @@ def on_delivery_note_onsubmit(doc, handler):
 
 		if settings.notify_invoice_to_customer and sales_invoice.contact_email:
 			tasks.send_invoice_to_customer( sales_invoice.name )
-	
-def on_task_before_save( doc, handler=None ):
-	if doc.status == "Closed" \
-		and frappe.db.get_value("Task", doc.name, "status") != "Closed":
-		tasks.notify_task_close_to_customer( doc )
 
 @frappe.whitelist()
 def get_company_address(company):
@@ -436,6 +431,13 @@ def on_project_onload(doc, handler=None):
 def on_project_validate(doc, handler=None):
 	if len(doc.tasks) == doc.get('tasks', {'status': 'Closed'}) and doc.status != "Closed":
 		doc.status = "Closed"
+
+
+def on_project_before_save(doc, handler=None):
+	for task in doc.tasks:
+		if task.status == "Closed" and \
+			frappe.db.get_value('Task', task.task_id, 'status') != 'Closed':
+			tasks.notify_task_close_to_customer( task, doc )
 
 def on_stock_entry_on_submit(doc, handler=None):
 	warehouse_for_loaner = frappe.defaults.get_global_default("warehouse_for_loaner")
