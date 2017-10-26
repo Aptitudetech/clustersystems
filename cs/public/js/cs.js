@@ -301,8 +301,8 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
 	    }, 500);*/
         });
         frm.add_custom_button(__('Cancel `Process Quote / Return`'), function(){
-            frappe.prompt(
-                __('Are you sure do you want to continue with the `Cancel Process Quote / Return Action`?'),
+            frappe.confirm(
+                __('Are you sure you want to continue with the `Cancel Process Quote / Return Action`?'),
                 function(){
                     frappe.call({
                         'method': 'cs.api.cancel_process_quote_return',
