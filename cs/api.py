@@ -26,6 +26,8 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 
 	doc = frappe.get_doc('Quotation', quote)
 
+	settings = frappe.get_doc("Cluster System Settings", "Cluster System Settings")
+
 	if doc.lead and not frappe.db.get_value("Customer", {"lead_name": doc.lead}):
 		customer = make_customer( doc.lead )
 		customer.customer_group = customer_group
@@ -122,7 +124,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 		frappe._('New Delivery Note {0} create!').format(so.name)
 	)
 
-	assign_dn_to = frappe.defaults.get_global_default( 'auto_assign_dn_to' )
+	assign_dn_to = settings.auto_assign_dn_to
 	if assign_dn_to:
 		assign_to.add({
 			'assign_to': assign_dn_to,
