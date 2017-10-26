@@ -221,7 +221,7 @@ def notify_task_close_to_customer( doc, project ):
 	if not settings.notify_task_close:
 		return
 
-	reply = get_standard_reply( settings.task_close_reply, doc, project=project.as_dict() )
+	reply = get_standard_reply( settings.task_close_reply, doc, project )
 
 	customer = frappe.db.get_value("Project", doc.project, "customer")
 	if not customer:

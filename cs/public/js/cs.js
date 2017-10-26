@@ -15,7 +15,7 @@ frappe.ui.form.on('Quotation', {
                     && frm.doc.__onload.has_customer)) ?
                 function(){
                     frm.call({
-                        'method': 'cs.events.process_quote',
+                        'method': 'cs.api.process_quote',
                         'args': {
                             'quote': frm.doc.name
                         },
@@ -81,7 +81,7 @@ frappe.ui.form.on('Quotation', {
                         function(args){
                             args['quote'] = frm.doc.name
                             frm.call({
-                                'method': 'cs.events.process_quote',
+                                'method': 'cs.api.process_quote',
                                 'args': args,
                                 'freeze_message': __('Please wait a few moments while we process your quote'),
                                 'freeze': true,
@@ -119,7 +119,7 @@ frappe.ui.form.on('Lead', {
     'appointment_date': function(frm, cdt, cdn){
         if (!frm.doc.appointment_location){
             frappe.call({
-                'method': 'cs.events.get_company_address',
+                'method': 'cs.api.get_company_address',
                 'args': {
                     'company': frm.doc.company
                 },
@@ -134,7 +134,11 @@ frappe.ui.form.on('Lead', {
 });
 
 frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
-    if (frm.doc.template_type === frappe.defaults.get_global_default('template_for_swap') 
+    if (frm.doc.project_type === "Template" && frappe.user_roles.includes("Cluster - Project User")) {
+        frm.disable_save();
+        frm.read_only(true);
+    }
+    if (frm.doc.status == 'Open' && frm.doc.template_type === frappe.defaults.get_global_default('template_for_swap') 
         && frm.doc.__onload && !frm.doc.__onload.all_dn_closed){
 
         var fields = [
@@ -170,7 +174,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                     }
                 },
                 'default': frm.doc.__onload && frm.doc.__onload.dn_item_codes && frm.doc.__onload.dn_item_codes.length ? frm.doc.__onload.dn_item_codes[0] : null,
-                'on_make': function(field){
+                /*'on_make': function(field){
                     field.refresh();
                     field.$input.on('awesomplete-selectcomplete change', function(ev){
                         if (cur_dialog.get_value('warehouse')){
@@ -195,7 +199,10 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                             });
                         }
                     });
-                }
+                }*/
+            },
+            {
+                "fieldtype": "Column Break"
             },
             {
                 'fieldname': 'serial_no',
@@ -209,10 +216,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                 'fieldtype': 'Select',
                 'reqd': 1
             },
-            {
-                "fieldtype": "Column Break"
-            },
-            {
+            /*{
                 'fieldtype': 'Currency',
                 'fieldname': 'valuation_rate',
                 'label': __('Valuation Rate'),
@@ -252,7 +256,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                 'fieldname': 'credit_amount',
                 'label': __('Return Item Value'),
                 'reqd': 1
-            }
+            }*/
         ];
         frm.add_custom_button(__("Create Return"), function(){
             var d = frappe.prompt(
@@ -264,12 +268,13 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                     args['customer'] = frm.doc.customer;
                     args['project'] = frm.doc.name;
                     frappe.call({
-                        'method': 'cs.events.make_return',
+                        'method': 'cs.api.make_return',
                         'args': args,
                         'freeze_message': __('Please wait a few moments while we process your return'),
                         'freeze': true,
                         'callback': function(res){
                             frm.reload_doc();
+                            frappe.msgprint(__('Process sucessfull!'))
                         }
                     });
                 },
@@ -289,11 +294,31 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                     }
                 }
             });
-	    setTimeout(function(){
+	    /*setTimeout(function(){
 		if (cur_dialog.get_value('item_code')){
 			cur_dialog.fields_dict.item_code.$input.trigger('change');
 		}
-	    }, 500);
+	    }, 500);*/
+        });
+        frm.add_custom_button(__('Cancel `Process Quote / Return`'), function(){
+            frappe.prompt(
+                __('Are you sure do you want to continue with the `Cancel Process Quote / Return Action`?'),
+                function(){
+                    frappe.call({
+                        'method': 'cs.api.cancel_process_quote_return',
+                        'args': {
+                            'project': frm.doc.project
+                        },
+                        'callback': function(res){
+                            if (res.exc) return;
+                            frm.reload_doc();
+                            frappe.msgprint(__('Process Successfull!'))
+                        },
+                        'freeze': true,
+                        'freeze_message': __('Please wait a few moments while we process your action!')
+                    });
+                }
+            );
         });
     }
     if (frm.doc.__onload.customer_card){
