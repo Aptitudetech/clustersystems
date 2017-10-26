@@ -91,24 +91,26 @@ def on_delivery_note_onsubmit(doc, handler):
 		frappe.throw(frappe._('You must first configure the `Template for Swap` option in `Cluster System Settings` before you can continue'))
 
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
+	project_template_type = frappe.db.get_value('Project', doc.project, 'template_type')
 	if not settings.enable_delivery_note_automation \
 		or doc.is_return:
 		return
 
 	if doc.get('project') \
-		and frappe.db.get_value('Project', doc.project, 'template_type') == template_for_swap:
+		and project_template_type == template_for_swap:
 		doc.taxes = []
 		return
 	
-	sales_invoice = make_sales_invoice( doc.name )
-	sales_invoice.flags.ignore_permissions = True
-	sales_invoice.insert()
-	if doc.get('project') and \
-		frappe.db.get_value('Project', doc.project, 'template_type') != template_for_swap:
-		sales_invoice.submit()
+	if not settings.get("restricted_template_types", {"template_type": project_template_type}):
+		sales_invoice = make_sales_invoice( doc.name )
+		sales_invoice.flags.ignore_permissions = True
+		sales_invoice.insert()
+		if doc.get('project') and \
+			project_template_type != template_for_swap:
+			sales_invoice.submit()
 
-		if settings.notify_invoice_to_customer and sales_invoice.contact_email:
-			tasks.send_invoice_to_customer( sales_invoice.name )
+			if settings.notify_invoice_to_customer and sales_invoice.contact_email:
+				tasks.send_invoice_to_customer( sales_invoice.name )
 
 def on_project_onload(doc, handler=None):
 	from frappe.contacts.doctype.contact.contact import get_default_contact
