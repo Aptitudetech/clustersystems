@@ -111,9 +111,6 @@ doc_events = {
 		"validate": [
 			"cs.events.on_project_validate"
 		],
-		"before_save": [
-			"cs.events.on_project_before_save"
-		],
 	},
 	"Stock Entry": {
 		"on_submit": [
