@@ -307,7 +307,7 @@ frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
                     frappe.call({
                         'method': 'cs.api.cancel_process_quote_return',
                         'args': {
-                            'project': frm.doc.project
+                            'project': frm.doc.name
                         },
                         'callback': function(res){
                             if (res.exc) return;
