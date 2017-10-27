@@ -104,6 +104,11 @@ doc_events = {
 			"cs.events.on_delivery_note_onsubmit"
 		]
 	},
+	"Sales Invoice": {
+		"on_submit": [
+			"cs.events.on_sales_invoice_onsubmit"
+		]
+	},
 	"Project": {
 		"onload": [
 			"cs.events.on_project_onload"
