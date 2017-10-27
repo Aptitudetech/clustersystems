@@ -36,8 +36,8 @@ def send_appointment( doc, standard_reply ):
 	c = ics.Calendar()
 	e = ics.Event(
 		name=reply['message'],
-		begin=doc.appointment_date.strftime('%Y%m%d %H%M%S'),
-		end=add_to_date(doc.appointment_date, hours=1).strftime('%Y%m%d %H%M%S'),
+		begin=doc.appointment_date.strftime('%Y%m%d %H:%M:%S'),
+		end=add_to_date(doc.appointment_date, hours=1).strftime('%Y%m%d %H:%M:%S'),
 		description=reply['subject'],
 		location=doc.appointment_location
 	)
