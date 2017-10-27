@@ -143,15 +143,14 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 			)
 		)
 
-	return {
-		'msgs': msgs,
-		'project_name': new_project.name if frappe.defaults.get_global_default( 'auto_create_project' ) else None
-	}
-
 	settings = frappe.get_doc("Cluster System Settings", "Cluster System Settings")
 	if settings.send_wellcome_email and settings.wellcome_reply:
 		tasks.send_wellcome_email( doc.quotation_to, doc.lead or doc.customer )
 
+	return {
+		'msgs': msgs,
+		'project_name': new_project.name if frappe.defaults.get_global_default( 'auto_create_project' ) else None
+	}
 
 
 @frappe.whitelist()
