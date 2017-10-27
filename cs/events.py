@@ -190,5 +190,5 @@ def on_stock_entry_on_submit(doc, handler=None):
 
 def on_sales_invoice_onsubmit(doc, handler=None):
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
-	if settings.notify_invoice_to_customer and sales_invoice.contact_email:
-		tasks.send_invoice_to_customer( sales_invoice.name )
+	if settings.notify_invoice_to_customer and doc.contact_email:
+		tasks.send_invoice_to_customer( doc.name )
