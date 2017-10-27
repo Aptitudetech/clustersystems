@@ -6,6 +6,7 @@ from datetime import timedelta
 
 import frappe
 import ics
+import datetime
 from StringIO import StringIO
 from frappe import _
 from frappe.core.doctype.communication import email
@@ -35,12 +36,12 @@ def send_appointment( doc, standard_reply ):
 	c = ics.Calendar()
 	e = ics.Event(
 		name=reply['message'],
-		begin=doc.appointment_date,
-		end=add_to_date(doc.add_to_date, hours=1),
+		begin=doc.appointment_date.strftime('%Y%m%d %H:%M:%S'),
+		end=add_to_date(doc.appointment_date, hours=1).strftime('%Y%m%d %H:%M:%S'),
 		description=reply['subject'],
 		location=doc.appointment_location
 	)
-	c.append(e)
+	c.events.append(e)
 
 	attachment = StringIO()
 	attachment.writelines(c)
@@ -50,7 +51,6 @@ def send_appointment( doc, standard_reply ):
 		doc.name,
 		reply['message'],
 		reply['subject'],
-		sender = doc.modified_by,
 		recipients = doc.email_id,
 		send_email = True,
 		attachments=[{
@@ -92,7 +92,6 @@ def send_invoice_to_customer( invoice_name ):
 			invoice_name,
 			reply['message'],
 			reply['subject'],
-			sender = invoice.modified_by,
 			recipients = invoice.contact_email,
 			send_email = True,
 			print_html = True,
@@ -215,7 +214,6 @@ def send_wellcome_email( doctype, name ):
 			name,
 			reply['message'],
 			reply['subject'],
-			sender=doc.modified_by,
 			recipients = email_id,
 			send_email = True,
 			attachments = attachments
@@ -259,7 +257,6 @@ def notify_task_close_to_customer( doc, project ):
 			project.name,
 			reply['message'],
 			reply['subject'],
-			sender=frappe.local.session.user,
 			recipients = email_id,
 			send_email = True,
 		)
