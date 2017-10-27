@@ -6,11 +6,11 @@ from datetime import timedelta
 
 import frappe
 import ics
+import datetime
 from StringIO import StringIO
 from frappe import _
 from frappe.core.doctype.communication import email
 from frappe.utils import now_datetime, add_to_date, get_datetime
-from frappe.utils.data import convert_utc_to_user_timezone
 from frappe.utils.file_manager import get_file
 from frappe.contacts.doctype.contact.contact import get_default_contact
 
@@ -36,8 +36,8 @@ def send_appointment( doc, standard_reply ):
 	c = ics.Calendar()
 	e = ics.Event(
 		name=reply['message'],
-		begin=convert_utc_to_user_timezone(doc.appointment_date).replace(tzinfo=None),
-		end=convert_utc_to_user_timezone(add_to_date(doc.appointment_date, hours=1)).replace(tzinfo=None),
+		begin=doc.appointment_date.strftime('%Y%m%d %H%M%S'),
+		end=add_to_date(doc.appointment_date, hours=1).strftime('%Y%m%d %H%M%S'),
 		description=reply['subject'],
 		location=doc.appointment_location
 	)
