@@ -157,3 +157,6 @@ scheduler_events = {
 # 	"frappe.desk.doctype.event.event.get_events": "cs.event.get_events"
 # }
 
+fixtures = [
+	{"dt": "Print Format", "filters": {"standard": "No"}}
+]
