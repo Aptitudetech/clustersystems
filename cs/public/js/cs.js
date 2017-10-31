@@ -51,13 +51,6 @@ frappe.ui.form.on('Quotation', {
                                 'fieldname': 'customer_group',
                             },
                             {
-                                'fieldtype': 'Select',
-                                'label': __('Customer Language'),
-                                'fieldname': 'language',
-                                'options': frappe.get_languages(),
-                                'reqd': 1
-                            },
-                            {
                                 'fieldtype': 'Column Break'
                             },
                             {
