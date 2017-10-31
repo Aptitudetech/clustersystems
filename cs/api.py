@@ -150,7 +150,8 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 		)
 
 	settings = frappe.get_doc("Cluster System Settings", "Cluster System Settings")
-	if settings.send_wellcome_email and settings.wellcome_reply:
+	if settings.send_wellcome_email and settings.wellcome_reply \
+		and settings.get('wellcome_template_types', {'template_type': doc.template_type}):
 		tasks.send_wellcome_email( doc.quotation_to, doc.lead or doc.customer )
 
 	return {
