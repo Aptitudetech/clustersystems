@@ -35,12 +35,16 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 		customer.language = language
 		customer.flags.ignore_mandatory = True
 		customer.flags.ignore_permissions = True
+		if not customer.get('sales_partner') and doc.get('sales_partner'):
+			customer.sales_partner = doc.sales_partner
 		customer.insert()
 
 	so = make_sales_order( quote )
 	so.delivery_date = delivery_date or today()
 	so.flags.ignore_mandatory = True
 	so.flags.ignore_permissions = True
+	if not so.get('sales_partner') and doc.get('sales_partner'):
+		so.sales_partner = doc.sales_partner
 	so.save()
 
 	if frappe.defaults.get_global_default( 'auto_create_project' ):
@@ -112,6 +116,8 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 	dn = make_delivery_note( so.name )
 	dn.flags.ignore_mandatory = True
 	dn.flags.ignore_permissions = True
+	if not dn.get('sales_partner') and doc.get('sales_partner'):
+		dn.sales_partner = doc.sales_partner
 	dn.insert()
 	for row in dn.items:
 		item = doc.get('items', {'item_code': row.item_code})
