@@ -158,5 +158,6 @@ scheduler_events = {
 # }
 
 fixtures = [
-	{"dt": "Print Format", "filters": {"standard": "No"}}
+	{"dt": "Print Format", "filters": {"standard": "No"}},
+	{"dt": "Standard Reply"}
 ]
