@@ -77,7 +77,7 @@ def send_appointment( doc, standard_reply , for_update=False):
 		doc.name,
 		reply['message'],
 		reply['subject'],
-		sender='Cluster POS - No Reply <noreply@clusterpos.com>',
+		sender=settings.email_sender,
 		recipients = doc.email_id,
 		send_email = True,
 		attachments=[{
@@ -119,7 +119,7 @@ def send_invoice_to_customer( invoice_name ):
 			invoice_name,
 			reply['message'],
 			reply['subject'],
-			sender='Cluster POS - No Reply <noreply@clusterpos.com>',
+			sender=settings.email_sender,
 			recipients = invoice.contact_email,
 			send_email = True,
 			print_html = True,
@@ -242,7 +242,7 @@ def send_wellcome_email( doctype, name ):
 			name,
 			reply['message'],
 			reply['subject'],
-			sender='Cluster POS - No Reply <noreply@clusterpos.com>',
+			sender=settings.email_sender,
 			recipients = email_id,
 			send_email = True,
 			attachments = attachments
@@ -286,7 +286,7 @@ def notify_task_close_to_customer( doc, project ):
 			project.name,
 			reply['message'],
 			reply['subject'],
-			sender='Cluster POS - No Reply <noreply@clusterpos.com>',
+			sender=settings.email_sender,
 			recipients = email_id,
 			send_email = True,
 		)
