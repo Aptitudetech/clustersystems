@@ -11,5 +11,5 @@ class ClusterSystemSettings(Document):
 	    	for field in ['auto_create_project', 'auto_assign_dn_to', 
 				'percent_for_return', 'warehouse_for_return', 
 				'warehouse_for_replacement', 'template_for_swap',
-				'warehouse_for_loaner']:
+				'warehouse_for_loaner', 'appointment_default_address']:
     			frappe.defaults.add_global_default(field, self.get(field))

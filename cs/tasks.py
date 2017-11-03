@@ -5,15 +5,15 @@ from __future__ import unicode_literals
 from datetime import timedelta
 
 import frappe
-import ics
+import icalendar
 import datetime
-from StringIO import StringIO
+#from StringIO import StringIO
 from frappe import _
 from frappe.core.doctype.communication import email
 from frappe.utils import now_datetime, add_to_date, get_datetime
 from frappe.utils.file_manager import get_file
 from frappe.contacts.doctype.contact.contact import get_default_contact
-
+from html2text import html2text
 
 def get_standard_reply( template_name, doc, language=None, **kwargs  ):
 	'''Returns the processed HTML of a standard reply with the given doc'''
@@ -28,34 +28,61 @@ def get_standard_reply( template_name, doc, language=None, **kwargs  ):
 	}
 	
 
-def send_appointment( doc, standard_reply ):
+def send_appointment( doc, standard_reply , for_update=False):
 	'''Sends any appointment communication and attach the communication to the Lead'''
 
 	reply = get_standard_reply( standard_reply, doc )
 
-	c = ics.Calendar()
-	e = ics.Event(
-		name=reply['subject'],
-		begin=get_datetime(doc.appointment_date).strftime('%Y-%m-%dT%H:%M:%S%z'),
-		end=get_datetime(add_to_date(doc.appointment_date, hours=1)).strftime('%Y-%m-%dT%H:%M:%S%z'),
-		description=reply['message'],
-		location=doc.appointment_location
-	)
-	c.events.append(e)
+	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
 
-	attachment = StringIO()
-	attachment.writelines(c)
+	cal = icalendar.Calendar()
+	cal.add('prodid', '-//Aptitudetech ERPNext Automation//aptitudetech.net//')
+	cal.add('version', '1.0')
+
+	event = icalendar.Event()
+	event.add('summary', reply['subject'])
+	event.add('dtstart', get_datetime(doc.appointment_date))
+	event.add('dtend', get_datetime(add_to_date(doc.appointment_date, hours=1)))
+	event.add('dtstamp', get_datetime(now_datetime()))
+	event.add('priority', 5)
+	
+	if for_update:
+		event.add('method', 'REQUEST')
+	event['organizer'] = icalendar.vCalAddress('MAILTO:meeting@clusterpos.com')
+	event['location']  = icalendar.vText(html2text(doc.appointment_location))
+	event['uid'] = '{0}/lead@clusterpos.com'.format(doc.get_signature())
+	event['sequence'] = get_datetime(now_datetime()).strftime('%Y%m%d%H%M%S')
+	event['description'] = reply['message']
+
+	cal.add_component(event)
+
+	#c = ics.Calendar()
+	#if for_update:
+	#	c.method = "REQUEST"
+	#e = ics.Event(
+	#	uid = "{0}@clusterpos.com".format(doc.get_signature()),
+	#	name=reply['subject'],
+	#	begin=get_datetime(doc.appointment_date).strftime('%Y-%m-%dT%H:%M:%S%z'),
+	#	end=get_datetime(add_to_date(doc.appointment_date, hours=1)).strftime('%Y-%m-%dT%H:%M:%S%z'),
+	#	description=reply['message'],
+	#	location=doc.appointment_location
+	#)
+	#c.events.append(e)
+
+	#attachment = StringIO()
+	#attachment.writelines(c)
 
 	email.make(
 		'Lead',
 		doc.name,
 		reply['message'],
 		reply['subject'],
+		sender='Cluster POS - No Reply <noreply@clusterpos.com>',
 		recipients = doc.email_id,
 		send_email = True,
 		attachments=[{
 			'fname': 'meeting.ics',
-			'fcontent': attachment.getvalue()
+			'fcontent': cal.to_ical()
 		}]
 	)
 
@@ -92,6 +119,7 @@ def send_invoice_to_customer( invoice_name ):
 			invoice_name,
 			reply['message'],
 			reply['subject'],
+			sender='Cluster POS - No Reply <noreply@clusterpos.com>',
 			recipients = invoice.contact_email,
 			send_email = True,
 			print_html = True,
@@ -106,7 +134,7 @@ def send_appointment_update( lead ):
 	lead = frappe.get_doc('Lead', lead)
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
 	if lead.email_id and settings.lead_appointment_enabled and settings.update_appointment_reply:
-		send_appointment( lead, settings.update_appointment_reply )
+		send_appointment( lead, settings.update_appointment_reply, for_update=True )
 
 
 def appointment_reminder():
@@ -214,6 +242,7 @@ def send_wellcome_email( doctype, name ):
 			name,
 			reply['message'],
 			reply['subject'],
+			sender='Cluster POS - No Reply <noreply@clusterpos.com>',
 			recipients = email_id,
 			send_email = True,
 			attachments = attachments
@@ -257,6 +286,7 @@ def notify_task_close_to_customer( doc, project ):
 			project.name,
 			reply['message'],
 			reply['subject'],
+			sender='Cluster POS - No Reply <noreply@clusterpos.com>',
 			recipients = email_id,
 			send_email = True,
 		)

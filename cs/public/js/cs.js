@@ -51,13 +51,6 @@ frappe.ui.form.on('Quotation', {
                                 'fieldname': 'customer_group',
                             },
                             {
-                                'fieldtype': 'Select',
-                                'label': __('Customer Language'),
-                                'fieldname': 'language',
-                                'options': frappe.get_languages(),
-                                'reqd': 1
-                            },
-                            {
                                 'fieldtype': 'Column Break'
                             },
                             {
@@ -125,7 +118,7 @@ frappe.ui.form.on('Lead', {
                 },
                 'callback': function(res){
                     if (res && res.message){
-                        frm.set_value('appointment_location', res.message)
+                        frm.set_value('appointment_location', frappe.defaults.get_global_default('appointment_default_address') || res.message)
                     }
                 }
             });
