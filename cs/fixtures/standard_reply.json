@@ -10,17 +10,17 @@
  {
   "docstatus": 0, 
   "doctype": "Standard Reply", 
-  "modified": "2017-10-02 15:39:36.892018", 
+  "modified": "2017-11-02 21:58:45.499450", 
   "name": "Meeting with Cluster POS", 
-  "response": "Date: {{ appointment_date }}<div>{{ appointment_location }}</div>", 
+  "response": "Date: {{ appointment_date }}<br>{{ appointment_location }}", 
   "subject": "Meeting with Cluster POS"
  }, 
  {
   "docstatus": 0, 
   "doctype": "Standard Reply", 
-  "modified": "2017-10-02 15:39:07.287024", 
+  "modified": "2017-11-02 21:59:03.488494", 
   "name": "Meeting with Cluster POS ** UPDATED **", 
-  "response": "Updated Date: {{ appointment_date }}<div>{{ appointment_location }}</div>", 
+  "response": "Updated Date: {{ appointment_date }}<br>{{ appointment_location }}", 
   "subject": "Meeting with Cluster POS ** UPDATED **"
  }, 
  {
