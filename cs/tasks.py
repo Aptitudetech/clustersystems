@@ -49,10 +49,10 @@ def send_appointment( doc, standard_reply , for_update=False):
 	if for_update:
 		event.add('method', 'REQUEST')
 	event['organizer'] = icalendar.vCalAddress('MAILTO:meeting@clusterpos.com')
-	event['location']  = icalendar.vText(html2text(doc.appointment_location))
+	event['location']  = icalendar.vText(html2text(doc.appointment_location).replace("=", ""))
 	event['uid'] = '{0}/lead@clusterpos.com'.format(doc.get_signature())
 	event['sequence'] = get_datetime(now_datetime()).strftime('%Y%m%d%H%M%S')
-	event['description'] = reply['message']
+	event['description'] = html2text(reply['message']).replace("=", "")
 
 	cal.add_component(event)
 
