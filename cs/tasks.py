@@ -13,7 +13,7 @@ from frappe.core.doctype.communication import email
 from frappe.utils import now_datetime, add_to_date, get_datetime
 from frappe.utils.file_manager import get_file
 from frappe.contacts.doctype.contact.contact import get_default_contact
-
+from html2text import html2text
 
 def get_standard_reply( template_name, doc, language=None, **kwargs  ):
 	'''Returns the processed HTML of a standard reply with the given doc'''
@@ -33,6 +33,8 @@ def send_appointment( doc, standard_reply , for_update=False):
 
 	reply = get_standard_reply( standard_reply, doc )
 
+	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
+
 	cal = icalendar.Calendar()
 	cal.add('prodid', '-//Aptitudetech ERPNext Automation//aptitudetech.net//')
 	cal.add('version', '1.0')
@@ -46,11 +48,11 @@ def send_appointment( doc, standard_reply , for_update=False):
 	
 	if for_update:
 		event.add('method', 'REQUEST')
-
 	event['organizer'] = icalendar.vCalAddress('MAILTO:meeting@clusterpos.com')
-	event['location']  = icalendar.vText('\n'.join([l for l in doc.appointment_location.split('<br/>') if l and 'Canada' not in l]))
+	event['location']  = icalendar.vText(html2text(doc.appointment_location))
 	event['uid'] = '{0}/lead@clusterpos.com'.format(doc.get_signature())
 	event['sequence'] = get_datetime(now_datetime()).strftime('%Y%m%d%H%M%S')
+	event['description'] = reply['message']
 
 	cal.add_component(event)
 
