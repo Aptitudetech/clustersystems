@@ -12,9 +12,9 @@ def quotation_onload(doc, handler=None):
 	if doc.lead:
 		customer = frappe.db.get_value("Customer", {"lead_name": doc.lead})
 		doc.get("__onload").has_customer = customer
-		doc.get("__onload").has_sales_order = frappe.db.count("Sales Order Item", {
-			"prevdoc_docname": doc.name
-		})
+	doc.get("__onload").has_sales_order = frappe.db.count("Sales Order Item", {
+		"prevdoc_docname": doc.name
+	})
 
 
 def on_lead_onload(doc, handler=None):
