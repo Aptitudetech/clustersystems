@@ -211,7 +211,7 @@ def update_appointment_event( lead ):
 	doc.save()
 
 
-def send_wellcome_email( doctype, name ):
+def send_wellcome_email( doctype, name, welcome_reply ):
 	doc = frappe.get_doc(doctype, name)
 
 	email_id = None
@@ -236,7 +236,7 @@ def send_wellcome_email( doctype, name ):
 		})
 
 	if email_id:
-		reply = get_standard_reply( settings.wellcome_reply, doc )
+		reply = get_standard_reply( welcome_reply or settings.wellcome_reply, doc )
 		email.make(
 			doctype,
 			name,

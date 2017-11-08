@@ -23,7 +23,7 @@ def on_lead_onload(doc, handler=None):
 	if not doc.get('__islocal'):
 		onload = doc.get('__onload')
 		onload.original_appointment_date, onload.original_appointment_location = frappe.db.get_value(
-			'Lead', doc.name, ['appointment_date', 'appointment_location']
+			doc.doctype, doc.name, ['appointment_date', 'appointment_location']
 		)
 	else:
 		onload = doc.get('__onload')
