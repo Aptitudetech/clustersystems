@@ -7,7 +7,6 @@ from datetime import timedelta
 import frappe
 import icalendar
 import datetime
-#from StringIO import StringIO
 from frappe import _
 from frappe.core.doctype.communication import email
 from frappe.utils import now_datetime, add_to_date, get_datetime
@@ -30,6 +29,13 @@ def get_standard_reply( template_name, doc, language=None, **kwargs  ):
 
 def send_appointment( doc, standard_reply , for_update=False):
 	'''Sends any appointment communication and attach the communication to the Lead'''
+
+	if doc.doctype != "Lead":
+		if not doc.contact_person:
+			return
+		email_id = frappe.db.get_value('Contact', doc.contact_person, 'email_id')
+	else:
+		email_id = doc.email_id
 
 	reply = get_standard_reply( standard_reply, doc )
 
@@ -56,29 +62,13 @@ def send_appointment( doc, standard_reply , for_update=False):
 
 	cal.add_component(event)
 
-	#c = ics.Calendar()
-	#if for_update:
-	#	c.method = "REQUEST"
-	#e = ics.Event(
-	#	uid = "{0}@clusterpos.com".format(doc.get_signature()),
-	#	name=reply['subject'],
-	#	begin=get_datetime(doc.appointment_date).strftime('%Y-%m-%dT%H:%M:%S%z'),
-	#	end=get_datetime(add_to_date(doc.appointment_date, hours=1)).strftime('%Y-%m-%dT%H:%M:%S%z'),
-	#	description=reply['message'],
-	#	location=doc.appointment_location
-	#)
-	#c.events.append(e)
-
-	#attachment = StringIO()
-	#attachment.writelines(c)
-
 	email.make(
-		'Lead',
+		doc.doctype,
 		doc.name,
 		reply['message'],
 		reply['subject'],
 		sender=settings.email_sender,
-		recipients = doc.email_id,
+		recipients = email_id,
 		send_email = True,
 		attachments=[{
 			'fname': 'meeting.ics',
@@ -87,13 +77,16 @@ def send_appointment( doc, standard_reply , for_update=False):
 	)
 
 
-def send_appointment_schedule( lead ):
+def send_appointment_schedule( doctype, docname ):
 	'''Sends a new appointment schedule'''
 
-	lead = frappe.get_doc('Lead', lead)
+	doc = frappe.get_doc(doctype, docname)
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
-	if lead.email_id and settings.lead_appointment_enabled and settings.new_appointment_reply:
-		send_appointment( lead, settings.new_appointment_reply )
+	if settings.lead_appointment_enabled and settings.new_appointment_reply:
+		if doctype == "Lead" and doc.email_id:
+			send_appointment( doc, settings.new_appointment_reply )
+		else:
+			send_appointment( doc, settings.new_appointment_reply )
 
 
 def send_invoice_to_customer( invoice_name ):
@@ -128,13 +121,16 @@ def send_invoice_to_customer( invoice_name ):
 		)
 
 
-def send_appointment_update( lead ):
+def send_appointment_update( doctype, docname, contact_name ):
 	'''Sends an updated appointment schedule'''
 
-	lead = frappe.get_doc('Lead', lead)
+	doc = frappe.get_doc(doctype, docname)
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
-	if lead.email_id and settings.lead_appointment_enabled and settings.update_appointment_reply:
-		send_appointment( lead, settings.update_appointment_reply, for_update=True )
+	if settings.lead_appointment_enabled and settings.update_appointment_reply:
+		if doctype == 'Lead' and lead.email_id:
+			send_appointment(source_doc, settings.update_appointment_reply, for_update=True )
+		else:
+			send_appointment(source_doc, settings.update_appointment_reply, for_update=True)
 
 
 def appointment_reminder():
@@ -159,59 +155,59 @@ def appointment_reminder():
 				send_appointment( lead, reminder.reminder_message )
 
 
-def create_appointment_event( lead ):
+def create_appointment_event( doctype, docname, contact_name ):
 	'''Create a new appointment event in the calendar'''
 
-	lead = frappe.get_doc('Lead', lead)
+	source_doc = frappe.get_doc(doctype, docname)
 	doc = frappe.new_doc('Event')
 	doc.update({
 		'subject': _('Appointment Schedule for {0} : {1} / {2}').format(
-			_('Lead'), lead.name, lead.lead_name
+			_(doctype), docname, contact_name
 		),
 		'event_type': 'Public',
 		'send_reminder': 1,
-		'starts_on': lead.appointment_date,
+		'starts_on': source_doc.appointment_date,
 		'color': 'orange',
 		'description': "<br>".join([
 			_('Appointment Schedule for {0} : {1} / {2}').format(
-				_('Lead'), lead.name, lead.lead_name
+				_(doctype), docname, contact_name
 			),
-			_('Scheduled to: {0}').format( lead.appointment_date ),
+			_('Scheduled to: {0}').format( source_doc.appointment_date ),
 			_('On the Location:'),
-			lead.appointment_location or "",
+			source_doc.appointment_location or "",
 		]),
-		'ref_type': 'Lead',
-		'ref_name': lead.name
+		'ref_type': source_doc.doctype,
+		'ref_name': source_doc.name
 	})
 	doc.insert()
 
-def update_appointment_event( lead ):
+def update_appointment_event( doctype, docname, contact_name ):
 	'''Update an apppointment event in the calendar'''
 
-	lead = frappe.get_doc('Lead', lead)
+	source_doc = frappe.get_doc(doctype, docname)
 	doc = frappe.get_doc('Event', {
-		'ref_type': 'Lead',
-		'ref_name': lead.name,
+		'ref_type': doctype,
+		'ref_name': docname,
 		'color': 'orange',
 		'subject': _('Appointment Schedule for {0} : {1} / {2}').format(
-			_('Lead'), lead.name, lead.lead_name
+			_(doctype), source_name, contact_name
 		)
 	})
 	doc.update({
-		'starts_on': lead.appointment_date,
+		'starts_on': source_doc.appointment_date,
 		'description': "<br>".join([
 			_('Appointment Schedule for {0} : {1} / {2}').format(
-				_('Lead'), lead.name, lead.lead_name
+				doctype, docname, contact_name
 			),
-			_('Scheduled to: {0}').format( lead.appointment_date ),
+			_('Scheduled to: {0}').format( source_doc.appointment_date ),
 			_('On the Location:'),
-			lead.appointment_location or "",
+			source_doc.appointment_location or "",
 		])  
 	})
 	doc.save()
 
 
-def send_wellcome_email( doctype, name ):
+def send_wellcome_email( doctype, name, welcome_reply ):
 	doc = frappe.get_doc(doctype, name)
 
 	email_id = None
@@ -236,7 +232,7 @@ def send_wellcome_email( doctype, name ):
 		})
 
 	if email_id:
-		reply = get_standard_reply( settings.wellcome_reply, doc )
+		reply = get_standard_reply( welcome_reply or settings.wellcome_reply, doc )
 		email.make(
 			doctype,
 			name,
@@ -273,10 +269,12 @@ def notify_task_close_to_customer( doc, project ):
 	if not project.customer:
 		return
 
+	email_id = None
 	customer = frappe.get_doc("Customer", project.customer)
-	contact = get_default_contact( 'Customer', project.customer )
-	if not customer.lead_name:
-		email_id = frappe.db.get_value("Contact", contact, "email_id")
+	if frappe.db.exists("Dynamic Link", {"parenttype": "Contact", "parent": project.customer}):
+		contact = get_default_contact( 'Customer', project.customer )
+		if not customer.lead_name:
+			email_id = frappe.db.get_value("Contact", contact, "email_id")
 	else:
 		email_id = frappe.db.get_value("Lead", customer.lead_name, "email_id")	
 

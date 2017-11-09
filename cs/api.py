@@ -117,13 +117,13 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 	dn.flags.ignore_permissions = True
 	if not dn.get('sales_partner') and doc.get('sales_partner'):
 		dn.sales_partner = doc.sales_partner
-	dn.insert()
 	for row in dn.items:
 		item = doc.get('items', {'item_code': row.item_code})
 		if item and item[0].notes:
-			frappe.db.set_value(row.doctype, row.name, 'notes', item[0].notes, update_modified=False)
+			row.notes = item[0].notes
 		if row.get("serial_no"):
-			frappe.db.set_value(row.doctype, row.name, 'serial_no', None, update_modified=False)
+			row.serial_no = None
+	dn.insert()
 
 	msgs.append(
 		frappe._('New Delivery Note {0} create!').format(so.name)
@@ -151,7 +151,11 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 	settings = frappe.get_doc("Cluster System Settings", "Cluster System Settings")
 	if settings.send_wellcome_email and settings.wellcome_reply \
 		and settings.get('welcome_template_types', {'template_type': doc.template_type}):
-		tasks.send_wellcome_email( doc.quotation_to, doc.lead or doc.customer )
+
+		standard_reply = settings.get('welcome_template_types', 
+			{'template_type': doc.template_type})[0].standard_reply
+
+		tasks.send_wellcome_email( doc.quotation_to, doc.lead or doc.customer, standard_reply )
 
 	return {
 		'msgs': msgs,

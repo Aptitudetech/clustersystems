@@ -126,6 +126,24 @@ frappe.ui.form.on('Lead', {
     }
 });
 
+frappe.ui.form.on('Opportunity', {
+    'appointment_date': function(frm, cdt, cdn){
+        if (!frm.doc.appointment_location){
+            frappe.call({
+                'method': 'cs.api.get_company_address',
+                'args': {
+                    'company': frm.doc.company
+                },
+                'callback': function(res){
+                    if (res && res.message){
+                        frm.set_value('appointment_location', frappe.defaults.get_global_default('appointment_default_address') || res.message)
+                    }
+                }
+            });
+        }
+    }
+});
+
 frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
     if (frm.doc.project_type === "Template" && frappe.user_roles.includes("Cluster - Project User")) {
         frm.disable_save();

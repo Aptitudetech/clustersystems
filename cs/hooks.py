@@ -94,6 +94,20 @@ doc_events = {
 			"cs.events.on_lead_onupdate"
 		]
 	},
+	"Opportunity": {
+		'onload': [
+			"cs.events.on_lead_onload"
+		],
+		'validate': [
+			"cs.events.on_lead_validate"
+		],
+		'oninsert': [
+			"cs.events.on_lead_oninsert"
+		],
+		'on_update': [
+			"cs.events.on_lead_onupdate"
+		]
+	},
 	"Quotation": {
 		"onload": [
 			"cs.events.quotation_onload"

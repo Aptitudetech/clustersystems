@@ -12,9 +12,9 @@ def quotation_onload(doc, handler=None):
 	if doc.lead:
 		customer = frappe.db.get_value("Customer", {"lead_name": doc.lead})
 		doc.get("__onload").has_customer = customer
-		doc.get("__onload").has_sales_order = frappe.db.count("Sales Order Item", {
-			"prevdoc_docname": doc.name
-		})
+	doc.get("__onload").has_sales_order = frappe.db.count("Sales Order Item", {
+		"prevdoc_docname": doc.name
+	})
 
 
 def on_lead_onload(doc, handler=None):
@@ -23,7 +23,7 @@ def on_lead_onload(doc, handler=None):
 	if not doc.get('__islocal'):
 		onload = doc.get('__onload')
 		onload.original_appointment_date, onload.original_appointment_location = frappe.db.get_value(
-			'Lead', doc.name, ['appointment_date', 'appointment_location']
+			doc.doctype, doc.name, ['appointment_date', 'appointment_location']
 		)
 	else:
 		onload = doc.get('__onload')
@@ -44,8 +44,12 @@ def on_lead_oninsert(doc, handler=None):
 	'''Creates an appointment event and sends it by email'''
 
 	if doc.appointment_date or doc.appointment_location:
-		tasks.send_appointment_schedule( doc.name )
-		tasks.create_appointment_event( doc.name )
+		if doc.doctype == "Lead":
+			contact_name = doc.lead_name
+		elif doc.doctype in ("Opportunity", "Customer"):
+			contact_name = doc.customer_name
+		tasks.send_appointment_schedule( doc.doctype, doc.name )
+		tasks.create_appointment_event( doc.doctype, doc.name, contact_name )
 
 
 def on_lead_onupdate(doc, handler=None):
@@ -59,21 +63,25 @@ def on_lead_onupdate(doc, handler=None):
 		if doc.appointment_date and \
 			( onload.get("original_appointment_date") != doc.appointment_date or 
 			onload.get("original_appointment_location") != doc.appointment_location ):
-				tasks.send_appointment_update( doc.name )
-				tasks.update_appointment_event( doc.name )
+				if doc.doctype == "Lead":
+					contact_name = doc.lead_name
+				elif doc.doctype in ("Opportunity", "Customer"):
+					contact_name = doc.customer_name
+				tasks.send_appointment_update( doc.doctype, doc.name, contact_name )
+				tasks.update_appointment_event( doc.doctype, doc.name, contact_name )
 				onload["original_appointment_date"] = doc.appointment_date
 				onload["original_appointment_location"] = doc.appointment_location
 
 	if doc.get('contact_by'):
 		if not frappe.db.exists("ToDo", {
-			"reference_type": "Lead",
+			"reference_type": doc.doctype,
 			"reference_name": doc.name,
 			"owner": doc.contact_by,
 			"status": "Open"
 		}):
 			assign_to.add({
 				'assign_to': doc.contact_by,
-				'doctype': 'Lead',
+				'doctype': doc.doctype,
 				'name': doc.name,
 				'description': frappe._('Automatic assignation'),
 				'date': doc.contact_date,
