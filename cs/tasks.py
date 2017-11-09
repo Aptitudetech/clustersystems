@@ -124,7 +124,7 @@ def send_invoice_to_customer( invoice_name ):
 def send_appointment_update( doctype, docname, contact_name ):
 	'''Sends an updated appointment schedule'''
 
-	doc = frappe.get_doc(doctype, docname)
+	source_doc = frappe.get_doc(doctype, docname)
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
 	if settings.lead_appointment_enabled and settings.update_appointment_reply:
 		if doctype == 'Lead' and lead.email_id:
@@ -190,7 +190,7 @@ def update_appointment_event( doctype, docname, contact_name ):
 		'ref_name': docname,
 		'color': 'orange',
 		'subject': _('Appointment Schedule for {0} : {1} / {2}').format(
-			_(doctype), source_name, contact_name
+			_(doctype), docname, contact_name
 		)
 	})
 	doc.update({
