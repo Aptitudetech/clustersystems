@@ -31,9 +31,9 @@ def send_appointment( doc, standard_reply , for_update=False):
 	'''Sends any appointment communication and attach the communication to the Lead'''
 
 	if doc.doctype != "Lead":
-		if not doc.contact_name:
+		if not doc.contact_person:
 			return
-		email_id = frappe.db.get_value('Contact', doc.contact_name, 'email_id')
+		email_id = frappe.db.get_value('Contact', doc.contact_person, 'email_id')
 	else:
 		email_id = doc.email_id
 
@@ -86,7 +86,7 @@ def send_appointment_schedule( doctype, docname ):
 		if doctype == "Lead" and doc.email_id:
 			send_appointment( doc, settings.new_appointment_reply )
 		else:
-			send_appointment( doc.settings.new_appointment_reply )
+			send_appointment( doc, settings.new_appointment_reply )
 
 
 def send_invoice_to_customer( invoice_name ):
@@ -174,7 +174,7 @@ def create_appointment_event( doctype, docname, contact_name ):
 			),
 			_('Scheduled to: {0}').format( source_doc.appointment_date ),
 			_('On the Location:'),
-			source_name.appointment_location or "",
+			source_doc.appointment_location or "",
 		]),
 		'ref_type': source_doc.doctype,
 		'ref_name': source_doc.name
