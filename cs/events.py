@@ -66,14 +66,14 @@ def on_lead_onupdate(doc, handler=None):
 
 	if doc.get('contact_by'):
 		if not frappe.db.exists("ToDo", {
-			"reference_type": "Lead",
+			"reference_type": doc.doctype,
 			"reference_name": doc.name,
 			"owner": doc.contact_by,
 			"status": "Open"
 		}):
 			assign_to.add({
 				'assign_to': doc.contact_by,
-				'doctype': 'Lead',
+				'doctype': doc.doctype,
 				'name': doc.name,
 				'description': frappe._('Automatic assignation'),
 				'date': doc.contact_date,
