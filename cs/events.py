@@ -45,7 +45,11 @@ def on_lead_oninsert(doc, handler=None):
 
 	if doc.appointment_date or doc.appointment_location:
 		tasks.send_appointment_schedule( doc.name )
-		tasks.create_appointment_event( doc.name )
+		if doc.doctype == "Lead":
+			contact_name = doc.lead_name
+		elif doc.doctype in ("Opportunity", "Customer"):
+			contact_name = doc.customer_name
+		tasks.create_appointment_event( doc.doctype, doc.name, contact_name )
 
 
 def on_lead_onupdate(doc, handler=None):
@@ -59,8 +63,12 @@ def on_lead_onupdate(doc, handler=None):
 		if doc.appointment_date and \
 			( onload.get("original_appointment_date") != doc.appointment_date or 
 			onload.get("original_appointment_location") != doc.appointment_location ):
-				tasks.send_appointment_update( doc.name )
-				tasks.update_appointment_event( doc.name )
+				if doc.doctype == "Lead":
+					contact_name = doc.lead_name
+				elif doc.doctype in ("Opportunity", "Customer"):
+					contact_name = doc.customer_name
+				tasks.send_appointment_update( doc.doctype, doc.name, contact_name )
+				tasks.update_appointment_event( doc.doctype, doc.name, contact_name )
 				onload["original_appointment_date"] = doc.appointment_date
 				onload["original_appointment_location"] = doc.appointment_location
 
