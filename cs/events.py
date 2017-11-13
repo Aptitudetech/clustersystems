@@ -72,11 +72,11 @@ def on_lead_onupdate(doc, handler=None):
 				onload["original_appointment_date"] = doc.appointment_date
 				onload["original_appointment_location"] = doc.appointment_location
 
-	if doc.get('contact_by'):
+	if doc.get('next_contact_by'):
 		if not frappe.db.exists("ToDo", {
 			"reference_type": doc.doctype,
 			"reference_name": doc.name,
-			"owner": doc.contact_by,
+			"owner": doc.next_contact_by,
 			"status": "Open"
 		}):
 			assign_to.add({
