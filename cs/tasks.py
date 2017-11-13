@@ -181,6 +181,23 @@ def create_appointment_event( doctype, docname, contact_name ):
 	})
 	doc.insert()
 
+	if source_doc.get('contact_by'):
+		if not frappe.db.exists("ToDo", {
+			"reference_type": source_doc.doctype,
+			"reference_name": source_doc.name,
+			"owner": source_doc.contact_by,
+			"status": "Open"
+		}):
+			assign_to.add({
+				'assign_to': source_doc.contact_by,
+				'doctype': source_doc.doctype,
+				'name': source_doc.name,
+				'description': frappe._('Automatic assignation'),
+				'date': source_doc.contact_date,
+				'notify': 1,
+				'assigned_by': 'Administrator'
+			})
+
 def update_appointment_event( doctype, docname, contact_name ):
 	'''Update an apppointment event in the calendar'''
 
@@ -205,6 +222,22 @@ def update_appointment_event( doctype, docname, contact_name ):
 		])  
 	})
 	doc.save()
+	if source_doc.get('contact_by'):
+		if not frappe.db.exists("ToDo", {
+			"reference_type": source_doc.doctype,
+			"reference_name": source_doc.name,
+			"owner": source_doc.contact_by,
+			"status": "Open"
+		}):
+			assign_to.add({
+				'assign_to': source_doc.contact_by,
+				'doctype': source_doc.doctype,
+				'name': source_doc.name,
+				'description': frappe._('Automatic assignation'),
+				'date': source_doc.contact_date,
+				'notify': 1,
+				'assigned_by': 'Administrator'
+			})
 
 
 def send_wellcome_email( doctype, name, welcome_reply ):
