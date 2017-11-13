@@ -44,11 +44,11 @@ def on_lead_oninsert(doc, handler=None):
 	'''Creates an appointment event and sends it by email'''
 
 	if doc.appointment_date or doc.appointment_location:
-		tasks.send_appointment_schedule( doc.name )
 		if doc.doctype == "Lead":
 			contact_name = doc.lead_name
 		elif doc.doctype in ("Opportunity", "Customer"):
 			contact_name = doc.customer_name
+		tasks.send_appointment_schedule( doc.doctype, doc.name )
 		tasks.create_appointment_event( doc.doctype, doc.name, contact_name )
 
 
