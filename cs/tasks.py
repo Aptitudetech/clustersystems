@@ -247,12 +247,19 @@ def send_wellcome_email( doctype, name, welcome_reply ):
 	if doctype == "Customer":
 		if doc.lead_name:
 			email_id = frappe.db.get_value("Lead", doc.lead_name, "email_id")
-		else:
-			contact = get_default_contact( doctype, name )
-			if contact:
-				email_id = frappe.db.get_value("Contact", contact, "email_id")
 	else:
 		email_id = doc.get('email_id')
+
+	if email_id is None:
+		options = [[doctype, docname]]
+		if doctype == "Customer" and doc.lead_name:
+			options.append(["Lead", doc.lead_name])
+		
+		for dt, dn in options:
+			contact = get_default_contact( dt, dn )
+			if contact:
+				email_id = frappe.db.get_value("Contact", contact, "email_id")
+				break
 
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
 
