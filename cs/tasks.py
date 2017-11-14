@@ -183,15 +183,15 @@ def create_appointment_event( doctype, docname, contact_name ):
 
 	if source_doc.get('contact_by'):
 		if not frappe.db.exists("ToDo", {
-			"reference_type": source_doc.doctype,
-			"reference_name": source_doc.name,
+			"reference_type": doc.doctype,
+			"reference_name": doc.name,
 			"owner": source_doc.contact_by,
 			"status": "Open"
 		}):
 			assign_to.add({
 				'assign_to': source_doc.contact_by,
-				'doctype': source_doc.doctype,
-				'name': source_doc.name,
+				'doctype': doc.doctype,
+				'name': doc.name,
 				'description': frappe._('Automatic assignation'),
 				'date': source_doc.contact_date,
 				'notify': 1,
@@ -224,15 +224,15 @@ def update_appointment_event( doctype, docname, contact_name ):
 	doc.save()
 	if source_doc.get('contact_by'):
 		if not frappe.db.exists("ToDo", {
-			"reference_type": source_doc.doctype,
-			"reference_name": source_doc.name,
+			"reference_type": doc.doctype,
+			"reference_name": doc.name,
 			"owner": source_doc.contact_by,
 			"status": "Open"
 		}):
 			assign_to.add({
 				'assign_to': source_doc.contact_by,
-				'doctype': source_doc.doctype,
-				'name': source_doc.name,
+				'doctype': doc.doctype,
+				'name': doc.name,
 				'description': frappe._('Automatic assignation'),
 				'date': source_doc.contact_date,
 				'notify': 1,
