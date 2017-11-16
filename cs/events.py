@@ -89,6 +89,20 @@ def on_lead_onupdate(doc, handler=None):
 				'assigned_by': 'Administrator'
 			})
 
+		event = frappe.db.exists('Event', {'ref_type': doc.doctype, 'ref_name': doc.name})
+		if event and not frappe.db.exists('ToDo', {
+			'reference_type': 'Event',
+			'reference_name': event}):
+			assign_to.add({
+				'assign_to': doc.contact_by,
+				'doctype': 'Event',
+				'name': event,
+				'description': frappe._('Automatic assignation'),
+				'date': doc.contact_date,
+				'notify': 1,
+				'assigned_by': 'Administrator'
+			})
+
 
 def on_delivery_note_onsubmit(doc, handler):
 	'''Makes a new invoice when delivery note submitted'''
