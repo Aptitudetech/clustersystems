@@ -172,7 +172,7 @@ def on_project_validate(doc, handler=None):
 		doc.status = "Completed"
 	for task in doc.tasks:
 		if task.status == "Closed" and \
-			frappe.db.get_value('Task', task.task_id, 'status') != 'Closed'
+			frappe.db.get_value('Task', task.task_id, 'status') != 'Closed' \
 			and task.send_update:
 			tasks.notify_task_close_to_customer( task, doc )
 
