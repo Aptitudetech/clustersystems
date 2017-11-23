@@ -218,7 +218,7 @@ def send_wellcome_email( doctype, name, welcome_reply ):
 		email_id = doc.get('email_id')
 
 	if email_id is None:
-		options = [[doctype, docname]]
+		options = [[doctype, name]]
 		if doctype == "Customer" and doc.lead_name:
 			options.append(["Lead", doc.lead_name])
 		
