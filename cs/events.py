@@ -182,6 +182,7 @@ def on_project_onload(doc, handler=None):
 
 
 def on_project_validate(doc, handler=None):
+	from frappe.desk.form import assign_to
 	if len(doc.tasks) == len(doc.get('tasks', {'status': 'Closed'})) and doc.status != "Closed":
 		doc.status = "Completed"
 	for task in doc.tasks:
@@ -189,6 +190,18 @@ def on_project_validate(doc, handler=None):
 			frappe.db.get_value('Task', task.task_id, 'status') != 'Closed' \
 			and task.send_update:
 			tasks.notify_task_close_to_customer( task, doc )
+
+		if task.assigned_to and not frappe.db.exists("ToDo", {"ref_type": "Task", "ref_name": task.task_id, "status": "Open"}):
+			assign_to.add({
+				'assign_to': new_task.assigned_to,
+				'doctype': 'Task',
+				'name': new_task.name,
+				'description': frappe._('Automatic assignation'),
+				'date': today(),
+				'notify': 1,
+				'assigned_by': 'Administrator'
+			})
+
 
 def on_stock_entry_on_submit(doc, handler=None):
 	warehouse_for_loaner = frappe.defaults.get_global_default("warehouse_for_loaner")
