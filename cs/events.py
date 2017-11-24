@@ -191,7 +191,9 @@ def on_project_validate(doc, handler=None):
 			and task.send_update:
 			tasks.notify_task_close_to_customer( task, doc )
 
-		if task.assigned_to and not frappe.db.exists("ToDo", {"reference_type": "Task", "reference_name": task.task_id, "status": "Open"}):
+		elif task.status == "Open" and \
+			task.assigned_to and \
+			not frappe.db.exists("ToDo", {"reference_type": "Task", "reference_name": task.task_id, "status": "Open"}):
 			assign_to.add({
 				'assign_to': task.assigned_to,
 				'doctype': 'Task',
