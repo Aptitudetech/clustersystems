@@ -127,7 +127,7 @@ def send_appointment_update( doctype, docname, contact_name ):
 	source_doc = frappe.get_doc(doctype, docname)
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
 	if settings.lead_appointment_enabled and settings.update_appointment_reply:
-		if doctype == 'Lead' and lead.email_id:
+		if doctype == 'Lead' and source_doc.email_id:
 			send_appointment(source_doc, settings.update_appointment_reply, for_update=True )
 		else:
 			send_appointment(source_doc, settings.update_appointment_reply, for_update=True)

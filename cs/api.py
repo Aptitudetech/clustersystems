@@ -82,7 +82,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 			new_task.flags.ignore_permissions = True
 			new_task.insert()
 
-			if new_task.get('assigned_to'):
+			if new_task.get('assigned_to') and not frappe.db.exists("ToDo", {"reference_type": "Task", "reference_name": new_task.name, "status": "Open"}):
 				assign_to.add({
 					'assign_to': new_task.assigned_to,
 					'doctype': 'Task',
