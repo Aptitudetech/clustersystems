@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 import frappe
 import frappe.defaults
-from frappe.utils import now_datetime, flt
+from frappe.utils import now_datetime, flt, today
 
 from cs import tasks
 
@@ -191,11 +191,11 @@ def on_project_validate(doc, handler=None):
 			and task.send_update:
 			tasks.notify_task_close_to_customer( task, doc )
 
-		if task.assigned_to and not frappe.db.exists("ToDo", {"ref_type": "Task", "ref_name": task.task_id, "status": "Open"}):
+		if task.assigned_to and not frappe.db.exists("ToDo", {"reference_type": "Task", "reference_name": task.task_id, "status": "Open"}):
 			assign_to.add({
-				'assign_to': new_task.assigned_to,
+				'assign_to': task.assigned_to,
 				'doctype': 'Task',
-				'name': new_task.name,
+				'name': task.task_id,
 				'description': frappe._('Automatic assignation'),
 				'date': today(),
 				'notify': 1,

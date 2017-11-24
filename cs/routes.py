@@ -14,7 +14,10 @@ def get_task_events(start, end, filters=None):
 	from frappe.desk.calendar import get_event_conditions
 	conditions = get_event_conditions("Task", filters)
 
-	data = frappe.db.sql("""select name, case when exp_start_time is not null then concat(exp_start_date, " ", exp_start_time) else exp_start_date end as exp_start_date, exp_end_date,
+	data = frappe.db.sql("""select 
+		name, 
+		case when start_time is not null then concat(exp_start_date, " ", start_time) else exp_start_date end as exp_start_date, 
+		case when end_time is not null then concat(exp_end_date, " ", end_time) else end_time end as exp_end_date,
 		subject, status, project, color from `tabTask`
 		where  exp_start_date is not null and ((ifnull(exp_start_date, '0000-00-00')!= '0000-00-00') \
 				and (exp_start_date <= %(end)s) \

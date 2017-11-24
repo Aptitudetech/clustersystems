@@ -1,0 +1,28 @@
+[
+ {
+  "apply_style": 1, 
+  "apply_text_styles": 1, 
+  "background_color": "#000", 
+  "background_image": null, 
+  "bootstrap": null, 
+  "css": "body {\n    font-size: 10px;\n    font-family: Arial, Helvetica, sans-serif;\n}\n\n.btn-primary {\n  background-color: rgba(244, 133, 51, 1);\n  border: solid rgba(249, 173, 59, 1) 0px;\n  color: #1A1A1A;\n}\n.btn-primary:hover {\n  background-color: rgba(251, 213, 155, 1);\n  border: solid rgba(249, 173, 59, 1) 0px\n}", 
+  "custom": 1, 
+  "docstatus": 0, 
+  "doctype": "Website Theme", 
+  "font_size": "12px", 
+  "footer_color": "#262626", 
+  "footer_text_color": "#FFF", 
+  "heading_style": "Title Case", 
+  "heading_webfont": null, 
+  "js": null, 
+  "link_color": null, 
+  "modified": "2017-11-21 23:29:38.373503", 
+  "module": "Website", 
+  "name": "Cluster", 
+  "text_color": "#FFFFFF", 
+  "text_webfont": null, 
+  "theme": "Cluster", 
+  "top_bar_color": "#262626", 
+  "top_bar_text_color": "#FFFFFF"
+ }
+]
