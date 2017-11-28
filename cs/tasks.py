@@ -280,9 +280,9 @@ def notify_task_close_to_customer( doc, project ):
 	customer = frappe.get_doc("Customer", project.customer)
 	if frappe.db.exists("Dynamic Link", {"parenttype": "Contact", "parent": project.customer}):
 		contact = get_default_contact( 'Customer', project.customer )
-		if not customer.lead_name:
+		if contact:
 			email_id = frappe.db.get_value("Contact", contact, "email_id")
-	else:
+	if customer.lead_name and email_id is None:
 		email_id = frappe.db.get_value("Lead", customer.lead_name, "email_id")	
 
 	if email_id:
