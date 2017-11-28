@@ -265,7 +265,6 @@ def send_wellcome_email( doctype, name, welcome_reply ):
 		
 
 def notify_task_close_to_customer( doc, project ):
-
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
 
 	if not settings.notify_task_close:
@@ -278,7 +277,7 @@ def notify_task_close_to_customer( doc, project ):
 
 	email_id = None
 	customer = frappe.get_doc("Customer", project.customer)
-	if frappe.db.exists("Dynamic Link", {"parenttype": "Contact", "parent": project.customer}):
+	if frappe.db.exists("Dynamic Link", {"parenttype": "Contact", "link_doctype": "Customer", "link_name": project.customer}):
 		contact = get_default_contact( 'Customer', project.customer )
 		if contact:
 			email_id = frappe.db.get_value("Contact", contact, "email_id")
