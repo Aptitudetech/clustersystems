@@ -180,19 +180,62 @@ def on_project_onload(doc, handler=None):
 		})
 		card_data['card_template'] = open(frappe.get_app_path('cs', 'public', 'templates', 'customer_card.html'), 'rb').read()
 
+	if doc.get('name'):
+		doc.tasks = []
+		i = 1
+		for task in frappe.get_all('Task', '*', {'project': doc.name}, order_by='`order` asc'):
+			task_map = {
+				"title": task.subject,
+				"status": task.status,
+				"start_date": task.exp_start_date,
+				"end_date": task.exp_end_date,
+				"task_id": task.name,
+				"description": task.descrition,
+				"task_weight": task.task_weight,
+				"idx": task.order or i
+			}
+			i += 1
+			doc.map_custom_fields(task, task_map)
+
+			doc.append("tasks", task_map)
+
 
 def on_project_validate(doc, handler=None):
 	from frappe.desk.form import assign_to
+
+	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
+	if settings.close_project_after:
+		unclosed_tasks = []
+		project_closed = False
+		for task in doc.tasks:
+			if task.title != settings.close_project_after and task.status == "Open":
+				unclosed_tasks.append(task.title)
+			elif task.title == settings.close_project_after and task.status == "Closed":
+				project_closed = True
+
+		if unclosed_tasks and project_closed:
+			frappe.throw(frappe._("You cannot close the task `{}` of this project because the following tasks aren\'t closed: {}").format(
+				settings.close_project_after, '<br>' + "<br>".join(unclosed_tasks)))
+
 	if len(doc.tasks) == len(doc.get('tasks', {'status': 'Closed'})) and doc.status != "Closed":
 		doc.status = "Completed"
+		for so in frappe.get_all("Sales Order", {"project": doc.name, "status": ["!=", "Closed"]}):
+			frappe.db.set_value("Sales Order", so.name, "status", "Closed")
+
+	task_close_sent = False
 	for task in doc.tasks:
+		task.order = task.idx
+		task_closed = None
 		if task.status == "Closed" and \
 			frappe.db.get_value('Task', task.task_id, 'status') != 'Closed' \
+			and task_close_sent is False \
 			and task.send_update:
-			tasks.notify_task_close_to_customer( task, doc )
+			tasks.notify_task_close_to_customer(task, doc)
+			task_close_sent = True
 
 		elif task.status == "Open" and \
 			task.assigned_to and \
+			task.task_id and \
 			not frappe.db.exists("ToDo", {"reference_type": "Task", "reference_name": task.task_id, "status": "Open"}):
 			assign_to.add({
 				'assign_to': task.assigned_to,
@@ -203,6 +246,9 @@ def on_project_validate(doc, handler=None):
 				'notify': 1,
 				'assigned_by': 'Administrator'
 			})
+		elif task.assigned_to and not task.task_id:
+			frappe.throw(frappe._(
+				'You cannot create and assign a Task for a user at same time, you need to create the task before making the assignment'))
 
 
 def on_stock_entry_on_submit(doc, handler=None):

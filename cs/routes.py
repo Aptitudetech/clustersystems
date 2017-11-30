@@ -15,10 +15,13 @@ def get_task_events(start, end, filters=None):
 	conditions = get_event_conditions("Task", filters)
 
 	data = frappe.db.sql("""select 
-		name, 
+		`tabTask`.name as name, 
 		case when (start_time is not null and exp_start_date is not null) then concat(exp_start_date, " ", start_time) else exp_start_date end as exp_start_date, 
 		case when (end_time is not null and exp_end_date is not null) then concat(exp_end_date, " ", end_time) else exp_end_date end as exp_end_date,
-		subject, status, project, color from `tabTask`
+		subject, `tabTask`.status as status, project, color,
+		concat(project, "\n", template_type) as tooltip
+		from `tabTask`
+		inner join `tabProject` on `tabProject`.`name` = `tabTask`.`project`
 		where exp_start_date is not null and ((ifnull(exp_start_date, '0000-00-00')!= '0000-00-00') \
 				and (exp_start_date <= %(end)s) \
 			or ((ifnull(exp_end_date, '0000-00-00')!= '0000-00-00') \
