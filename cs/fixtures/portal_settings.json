@@ -63,14 +63,6 @@
     "title": "Addresses"
    }, 
    {
-    "enabled": 1, 
-    "reference_doctype": "Announcement", 
-    "role": null, 
-    "route": "/announcement", 
-    "target": null, 
-    "title": "Announcements"
-   }, 
-   {
     "enabled": 0, 
     "reference_doctype": "Course", 
     "role": "Student", 

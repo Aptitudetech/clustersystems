@@ -175,5 +175,8 @@ fixtures = [
 	{"dt": "Print Format", "filters": {"standard": "No"}},
 	{"dt": "Standard Reply"},
 	{"dt": "Website Theme", "filters": {"name": "Cluster"}},
-	{"dt": "Portal Settings"}
+	{"dt": "Portal Settings"},
+	{"dt": "Custom Field", "filters": {"dt": "Customer"}}
 ]
+
+get_website_user_home_page = "cs.routes.get_website_user_home_page"

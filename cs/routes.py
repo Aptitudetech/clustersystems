@@ -60,3 +60,6 @@ def get_serial_no_details(serial_no, warehouse):
 		'warranty_expiry_date': doc.warranty_expiry_date,
 		'amc_expiry_date': doc.amc_expiry_date
 	}
+
+def get_website_user_home_page(user):
+	return 'customer-profile'
