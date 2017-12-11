@@ -1,0 +1,51 @@
+diff --git a/frappe/modules/utils.py b/frappe/modules/utils.py
+index 9e43a28..9a23c78 100644
+--- a/frappe/modules/utils.py
++++ b/frappe/modules/utils.py
+@@ -109,7 +109,11 @@ def sync_customizations_for_doctype(data):
+ 
+ 		for d in data[key]:
+ 			d['doctype'] = custom_doctype
++			for f in ('creation', 'modified'):
++				d.pop(f, None)
+ 			doc = frappe.get_doc(d)
++			if frappe.db.exists(d['doctype'], d.get('name')):
++				frappe.delete_doc(d['doctype'], d['name'])
+ 			doc.db_insert()
+ 
+ 	if data['custom_fields']:
+diff --git a/frappe/website/doctype/web_form/web_form.py b/frappe/website/doctype/web_form/web_form.py
+index 182d385..22a6497 100644
+--- a/frappe/website/doctype/web_form/web_form.py
++++ b/frappe/website/doctype/web_form/web_form.py
+@@ -154,6 +154,7 @@ def get_context(context):
+ 		if not self.login_required or not self.allow_edit:
+ 			frappe.form_dict.new = 1
+ 
++		self.add_custom_context_and_script(context)
+ 		self.load_document(context)
+ 		context.parents = self.get_parents(context)
+ 
+@@ -167,7 +168,6 @@ def get_context(context):
+ 			context.success_message = frappe.db.escape(context.success_message.replace("\n",
+ 				"<br>"))
+ 
+-		self.add_custom_context_and_script(context)
+ 		if not context.max_attachment_size:
+ 			context.max_attachment_size = get_max_file_size() / 1024 / 1024
+ 
+@@ -181,6 +181,7 @@ def get_context(context):
+ 			context.doc = frappe.get_doc(self.doc_type, frappe.form_dict.name)
+ 			context.title = context.doc.get(context.doc.meta.get_title_field())
+ 			context.doc.add_seen()
++			context.doc.run_method('onload')
+ 
+ 			context.reference_doctype = context.doc.doctype
+ 			context.reference_name = context.doc.name
+@@ -482,4 +483,4 @@ def make_route_string(parameters):
+ 			if key != "web_form_name":
+ 				route_string += route_string + delimeter + key + "=" + cstr(parameters[key])
+ 				delimeter = '&'
+-	return (route_string, delimeter)
+\ No newline at end of file
++	return (route_string, delimeter)

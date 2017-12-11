@@ -94,6 +94,14 @@ doc_events = {
 			"cs.events.on_lead_onupdate"
 		]
 	},
+	"Customer": {
+		'onload': [
+			"cs.events.on_customer_onload"
+		],
+		'validate': [
+			"cs.events.on_customer_validate"
+		]
+	},
 	"Opportunity": {
 		'onload': [
 			"cs.events.on_lead_onload"
@@ -136,6 +144,10 @@ doc_events = {
 			"cs.events.on_stock_entry_on_submit"
 		]
 	}
+}
+
+has_website_permission = {
+	"Customer": "cs.website_permissions.has_website_permission"
 }
 
 # Scheduled Tasks
