@@ -142,7 +142,7 @@ def on_customer_validate(doc, handler=None):
 		else:
 			d = frappe.new_doc("Address")
 			d.append("links", {"link_doctype": "Customer", "link_name": doc.name})
-		for f in ['address_type', 'address_line1', 'city', 'postal_code', 'email_id', 'phone']:
+		for f in ['address_type', 'address_line1', 'city', 'pincode', 'email_id', 'phone']:
 			setattr(d, f, address[f])
 		d.save(ignore_permissions=True)
 

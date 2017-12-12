@@ -37,6 +37,8 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 		if not customer.get('sales_partner') and doc.get('sales_partner'):
 			customer.sales_partner = doc.sales_partner
 		customer.insert()
+	else:
+		customer = frappe.get_doc("Customer", doc.customer)
 
 	so = make_sales_order( quote )
 	so.delivery_date = delivery_date or today()
@@ -152,10 +154,14 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 	if settings.send_wellcome_email and settings.wellcome_reply \
 		and settings.get('welcome_template_types', {'template_type': doc.template_type}):
 
+		link = None
+		if settings.invite_user_for_portal:
+			link = tasks.create_portal_user('Customer', customer.name)
+
 		standard_reply = settings.get('welcome_template_types', 
 			{'template_type': doc.template_type})[0].standard_reply
 
-		tasks.send_wellcome_email( doc.quotation_to, doc.lead or doc.customer, standard_reply )
+		tasks.send_wellcome_email( doc.quotation_to, doc.lead or doc.customer, standard_reply, link)
 
 	return {
 		'msgs': msgs,
