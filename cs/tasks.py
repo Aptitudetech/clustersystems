@@ -235,7 +235,7 @@ def create_portal_user(doctype, name):
 			"last_name": contact.last_name,
 			"email": email_id,
 			"user_type": "Website User",
-			"send_wellcome_email": 0
+			"send_welcome_email": 0
 		})
 		user.save(ignore_permissions=True)
 		return user.reset_password()
