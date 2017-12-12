@@ -188,7 +188,8 @@ fixtures = [
 	{"dt": "Standard Reply"},
 	{"dt": "Website Theme", "filters": {"name": "Cluster"}},
 	{"dt": "Portal Settings"},
-	{"dt": "Custom Field", "filters": {"dt": "Customer"}}
+	{"dt": "Custom Field", "filters": {"dt": "Customer"}},
+	{"dt": "Website Script"}
 ]
 
 get_website_user_home_page = "cs.routes.get_website_user_home_page"

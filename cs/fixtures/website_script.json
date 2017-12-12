@@ -1,0 +1,9 @@
+[
+ {
+  "docstatus": 0, 
+  "doctype": "Website Script", 
+  "javascript": "$(document).on('ready', function(){\n    $('.navbar-brand.ellipsis').remove();\n});", 
+  "modified": "2017-12-11 21:11:45.296995", 
+  "name": "Website Script"
+ }
+]
