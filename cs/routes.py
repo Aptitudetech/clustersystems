@@ -65,5 +65,5 @@ def get_website_user_home_page(user):
 	from erpnext.controllers.website_list_for_contact import get_customers_suppliers
 	if user != "Guest" and frappe.db.exists('Contact', {'email_id': user}):
 		customers, _ = get_customers_suppliers("Customer", user)
-		return '/customer-profile?name={0}'.format(customers[0]) if customers else '/customer-profile'
-	return '/me'
+		return 'customer-profile?name={0}'.format(customers[0]) if customers else 'customer-profile'
+	return 'login'
