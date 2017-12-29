@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 import frappe
 import frappe.defaults
-from frappe.utils import now_datetime, flt
+from frappe.utils import now_datetime, flt, today
 
 from cs import tasks
 
@@ -165,6 +165,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 
 @frappe.whitelist()
 def get_company_address(company):
+	'''Returns the default company address'''
 	from frappe.contacts.doctype.address.address import get_company_address
 
 	return (get_company_address(company) or {}).get("company_address_display")
@@ -172,6 +173,8 @@ def get_company_address(company):
 
 @frappe.whitelist()
 def get_against_reconcilable(project):
+	'''Return the Delivery Note, that can be reconciled into the Project'''
+
 	from copy import copy
 	sql = """
 		select 
@@ -210,7 +213,12 @@ def make_return(customer, item_code, serial_no, warehouse,
 	company, project, reconcile_against=None):
 	'''Automates the return generation against a project'''
 
-	from erpnext.stock.doctype.delivery_note.delivery_note import make_sales_return
+	from erpnext.stock.doctype.delivery_note.delivery_note \
+		import make_sales_return as make_delivery_return
+	from erpnext.stock.doctype.delivery_note.delivery_note \
+		import make_sales_invoice
+	from erpnext.accounts.doctype.sales_invoice.sales_invoice \
+		import make_sales_return as make_invoice_return
 	from erpnext.stock.utils import get_stock_balance
 
 	msgs = []
@@ -252,17 +260,29 @@ def make_return(customer, item_code, serial_no, warehouse,
 
 		msgs.append(frappe._('New Stock Entry `{0}` created!').format(ste.name))
 
-	delivered = frappe.db.get_value('Delivery Note Item', filters={
+
+	filters = {
 		'docstatus': 1,
 		'qty': ['>', 0],
 		'serial_no': ['like', "%" + serial_no + "%"]
-	}, fieldname="parent")
+	}
+	fields = ['parent', 'parenttype']
+	for dt in ('Delivery Note Item', 'Sales Invoice Item', 'Packed Item'):
+		if dt == 'Packed Item':
+			filters['parenttype'] = ['in', ['Delivery Note', 'Sales Invoice']]
+		delivered, dt = frappe.db.get_value(dt, filters=filters, 
+			fieldname=filters) or (None, None, None)
+		
+		if delivered:
+			if dt == "Sales Invoice":
+				if not frappe.db.get_value('Sales Invoice', delivered, 'update_stock'):
+					continue
+			break
 	
 	if delivered:
-		dn = frappe.get_doc('Delivery Note', delivered)	
-	else:
-
-		dn = frappe.new_doc('Delivery Note').update({
+		dn = frappe.get_doc(dt, delivered)	
+	elif dt == "Delivery Note":
+		dn = frappe.new_doc(dt).update({
 			'series': 'DN-',
 			'customer': customer,
 			'company': company,
@@ -287,18 +307,30 @@ def make_return(customer, item_code, serial_no, warehouse,
 		dn.run_method('get_missing_values')
 		dn.run_method('save')
 		dn.run_method('submit')
-
 		msgs.append(frappe._('New Delivery Note `{0}` created!').format(dn.name))
 	
-	returned = frappe.db.exists('Delivery Note Item', {
+	filters = {
 		'docstatus': 1,
 		'qty': ['<', 0],
 		'serial_no': ['like', "%" + serial_no + "%"]
-	})
-	if returned:
+	}
+	fields = ['parent', 'parenttype']
+	for _dt in ('Delivery Note Item', 'Sales Invoice Item', 'Packed Item'):
+		if _dt == 'Packed Item':
+			filters['parenttype'] = ['in', ['Delivery Note', 'Sales Invoice']]
+		returned, _dt = frappe.db.get_value(dt, filters=filters, 
+			fieldname=filters) or (None, None, None)
+		
+		if returned:
+			if not frappe.db.get_value(_dt, returned, 'is_return'):
+				continue
 		frappe.throw(_('The serial no `{0}` was already swapped!').format(serial_no))
 	
-	rt = make_sales_return(dn.name)
+	if dt == "Delivery Note":
+		rt = make_delivery_return(dn.name)
+	elif dt == "Sales Invoice":
+		rt = make_invoice_return(dn.name)
+
 	for i, item in enumerate(rt.items):
 		if item.item_code != item_code:
 			del rt.items[i]
@@ -313,13 +345,44 @@ def make_return(customer, item_code, serial_no, warehouse,
 			'serial_no': serial_no
 		})
 
+	if not rt.items:
+		rt.append('items', {
+			'item_code': item_code,
+			'qty': -1,
+			'rate': flt(credit_amount),
+			'amount': -flt(credit_amount),
+			'uom': uom,
+			'stock_uom': uom,
+			'conversion_factor': 1.0,
+			'serial_no': serial_no
+		})
+
 	rt.run_method('get_missing_values')
 	rt.run_method('save')
 	rt.run_method('submit')
 
-	if reconcile_against is not None:
+
+	if reconcile_against is not None and \
+		frappe.db.exists("Delivery Note", reconcile_against):
+		if dt == "Sales Invoice":
+			inv = make_sales_invoice(reconcile_against)
+			inv.items[0].update({
+				'rate': flt(credit_amount),
+				'amount': flt(credit_amount)
+			})
+			inv.append('credits', {
+				'reference_name': rt.name,
+				'remarks': rt.user_remarks,
+				'credit_amount': flt(credit_amount),
+				'allocated_amount': flt(allocated_amount)
+			})
+			inv.run_method('get_missing_values')
+			inv.run_method('save')
+			inv.run_method('submit')
+
 		frappe.get_doc('Delivery Note', reconcile_against).update_status('Closed')
 		rt.update_status('Closed')
+		
 
 	msgs.append(frappe._('New Return `{0}` created!').format(rt.name))
 
@@ -331,6 +394,7 @@ def make_return(customer, item_code, serial_no, warehouse,
 
 @frappe.whitelist()
 def cancel_process_quote_return(project):
+	'''Undo or close all documents generated by process quote routine'''
 	
 	for si in frappe.get_all('Sales Invoice', filters={'project': project}, fields=['name']):
 		si = frappe.get_doc('Sales Invoice', si)
