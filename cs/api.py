@@ -71,10 +71,11 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 			new_project.customer = doc.customer
 		new_project.project_type = "External"
 		new_project.autoname = get_project_autoname( new_project, project_name )
+		new_project.project_name = project_name
 		new_project.flags.ignore_mandatory = True
 		new_project.flags.ignore_permissions = True
-		new_project.insert()
-		new_project.db_set('status', 'Open', update_modified=False)
+		new_project.status = "Open"
+		new_project.run_method('save')
 
 		for task_name in frappe.get_all("Task", filters={"project": base_project.name}, order_by='idx'):
 			task = frappe.get_doc("Task", task_name)
@@ -273,11 +274,11 @@ def make_return(customer, item_code, serial_no, warehouse,
 		'serial_no': ['like', "%" + serial_no + "%"]
 	}
 	fields = ['parent', 'parenttype']
-	for dt in ('Delivery Note Item', 'Sales Invoice Item', 'Packed Item'):
-		if dt == 'Packed Item':
+	for odt in ('Delivery Note Item', 'Sales Invoice Item', 'Packed Item'):
+		if odt == 'Packed Item':
 			filters['parenttype'] = ['in', ['Delivery Note', 'Sales Invoice']]
-		delivered, dt = frappe.db.get_value(dt, filters=filters, 
-			fieldname=filters) or (None, None, None)
+		delivered, dt = frappe.db.get_value(odt, filters=filters, 
+			fieldname=fields) or (None, None)
 		
 		if delivered:
 			if dt == "Sales Invoice":
@@ -321,16 +322,14 @@ def make_return(customer, item_code, serial_no, warehouse,
 		'serial_no': ['like', "%" + serial_no + "%"]
 	}
 	fields = ['parent', 'parenttype']
-	for _dt in ('Delivery Note Item', 'Sales Invoice Item', 'Packed Item'):
-		if _dt == 'Packed Item':
+	for odt in ('Delivery Note Item', 'Sales Invoice Item', 'Packed Item'):
+		if odt == 'Packed Item':
 			filters['parenttype'] = ['in', ['Delivery Note', 'Sales Invoice']]
-		returned, _dt = frappe.db.get_value(dt, filters=filters, 
-			fieldname=filters) or (None, None, None)
-		
-		if returned:
-			if not frappe.db.get_value(_dt, returned, 'is_return'):
-				continue
-		frappe.throw(_('The serial no `{0}` was already swapped!').format(serial_no))
+		returned, _dt = frappe.db.get_value(odt, filters=filters, 
+			fieldname=fields) or (None, None)
+
+		if returned:		
+			frappe.throw(_('The serial no `{0}` was already swapped!').format(serial_no))
 	
 	if dt == "Delivery Note":
 		rt = make_delivery_return(dn.name)
@@ -377,17 +376,19 @@ def make_return(customer, item_code, serial_no, warehouse,
 				'amount': flt(credit_amount)
 			})
 			inv.append('credits', {
+				'reference_type': rt.doctype,
 				'reference_name': rt.name,
-				'remarks': rt.user_remarks,
+				'remarks': rt.remarks,
 				'credit_amount': flt(credit_amount),
-				'allocated_amount': flt(allocated_amount)
+				'allocated_amount': flt(credit_amount)
 			})
 			inv.run_method('get_missing_values')
 			inv.run_method('save')
 			inv.run_method('submit')
 
 		frappe.get_doc('Delivery Note', reconcile_against).update_status('Closed')
-		rt.update_status('Closed')
+		if hasattr(rt, 'update_status'):
+			rt.update_status('Closed')
 		
 
 	msgs.append(frappe._('New Return `{0}` created!').format(rt.name))

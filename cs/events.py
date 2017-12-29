@@ -263,7 +263,7 @@ def on_project_validate(doc, handler=None):
 			frappe.throw(frappe._("You cannot close the task `{}` of this project because the following tasks aren\'t closed: {}").format(
 				settings.close_project_after, '<br>' + "<br>".join(unclosed_tasks)))
 
-	if len(doc.tasks) == len(doc.get('tasks', {'status': 'Closed'})) and doc.status != "Closed":
+	if not doc.is_new() and len(doc.tasks) == len(doc.get('tasks', {'status': 'Closed'})) and doc.status != "Closed":
 		doc.status = "Completed"
 		for so in frappe.get_all("Sales Order", {"project": doc.name, "status": ["!=", "Closed"]}):
 			frappe.db.set_value("Sales Order", so.name, "status", "Closed")
