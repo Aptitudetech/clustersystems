@@ -207,7 +207,42 @@ def update_appointment_event( doctype, docname, contact_name ):
 	doc.save()
 
 
-def send_wellcome_email( doctype, name, welcome_reply ):
+def create_portal_user(doctype, name):
+	doc = frappe.get_doc(doctype, name)
+	
+	email_id = None
+	if doctype == "Customer":
+		email_id = frappe.db.get_value("Lead", doc.lead_name, "email_id") if doc.lead_name else doc.get("email_id")
+	else:
+		email_id = doc.get("email_id")
+
+	contact = None
+	if contact is None:
+		options = [[doctype, name]]
+		if doctype == "Customer" and doc.lead_name:
+			options.append(["Lead", doc.lead_name])
+		
+		for dt, dn in options:
+			contact = get_default_contact( dt, dn )
+			if contact:
+				contact = frappe.get_doc("Contact", contact)
+				break
+	
+
+	if email_id and contact and not frappe.db.exists("User", email_id):
+		user = frappe.new_doc("User").update({
+			"first_name": contact.first_name,
+			"last_name": contact.last_name,
+			"email": email_id,
+			"user_type": "Website User",
+			"send_welcome_email": 0
+		})
+		user.save(ignore_permissions=True)
+		return user.reset_password()
+		
+
+
+def send_wellcome_email( doctype, name, welcome_reply, link ):
 	doc = frappe.get_doc(doctype, name)
 
 	email_id = None
@@ -239,7 +274,7 @@ def send_wellcome_email( doctype, name, welcome_reply ):
 		})
 
 	if email_id:
-		reply = get_standard_reply( welcome_reply or settings.wellcome_reply, doc )
+		reply = get_standard_reply( welcome_reply or settings.wellcome_reply, doc, link=link )
 		email.make(
 			doctype,
 			name,

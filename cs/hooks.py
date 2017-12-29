@@ -94,6 +94,14 @@ doc_events = {
 			"cs.events.on_lead_onupdate"
 		]
 	},
+	"Customer": {
+		'onload': [
+			"cs.events.on_customer_onload"
+		],
+		'validate': [
+			"cs.events.on_customer_validate"
+		]
+	},
 	"Opportunity": {
 		'onload': [
 			"cs.events.on_lead_onload"
@@ -138,6 +146,10 @@ doc_events = {
 	}
 }
 
+has_website_permission = {
+	"Customer": "cs.website_permissions.has_website_permission"
+}
+
 # Scheduled Tasks
 # ---------------
 
@@ -176,7 +188,8 @@ fixtures = [
 	{"dt": "Standard Reply"},
 	{"dt": "Website Theme", "filters": {"name": "Cluster"}},
 	{"dt": "Portal Settings"},
-	{"dt": "Custom Field", "filters": {"dt": "Customer"}}
+	{"dt": "Custom Field", "filters": {"dt": "Customer"}},
+	{"dt": "Website Script"}
 ]
 
 get_website_user_home_page = "cs.routes.get_website_user_home_page"

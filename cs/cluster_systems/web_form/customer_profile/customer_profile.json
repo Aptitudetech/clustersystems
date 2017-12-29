@@ -18,7 +18,7 @@
  "is_standard": 1, 
  "login_required": 1, 
  "max_attachment_size": 0, 
- "modified": "2017-12-06 16:07:57.974613", 
+ "modified": "2017-12-15 07:25:50.210467", 
  "modified_by": "Administrator", 
  "module": "Cluster Systems", 
  "name": "customer-profile", 
@@ -26,7 +26,7 @@
  "payment_button_label": "Buy Now", 
  "published": 1, 
  "route": "customer-profile", 
- "show_sidebar": 1, 
+ "show_sidebar": 0, 
  "sidebar_items": [], 
  "success_url": "/customer-profile", 
  "title": "Customer Profile", 
@@ -35,49 +35,21 @@
    "fieldname": "customer_name", 
    "fieldtype": "Data", 
    "hidden": 0, 
-   "label": "Nom l\u00e9gal", 
+   "label": "Company Name", 
    "max_length": 0, 
    "max_value": 0, 
    "read_only": 0, 
    "reqd": 1
   }, 
   {
+   "fieldname": "trade_name", 
    "fieldtype": "Data", 
    "hidden": 0, 
-   "label": "Nom commercial", 
+   "label": "Legal Name", 
    "max_length": 0, 
    "max_value": 0, 
    "read_only": 0, 
-   "reqd": 0
-  }, 
-  {
-   "fieldname": "", 
-   "fieldtype": "Section Break", 
-   "hidden": 0, 
-   "label": "Legal Data", 
-   "max_length": 0, 
-   "max_value": 0, 
-   "read_only": 0, 
-   "reqd": 0
-  }, 
-  {
-   "fieldname": "tax_id", 
-   "fieldtype": "Data", 
-   "hidden": 0, 
-   "label": "Tax ID", 
-   "max_length": 0, 
-   "max_value": 0, 
-   "read_only": 0, 
-   "reqd": 0
-  }, 
-  {
-   "fieldtype": "Data", 
-   "hidden": 0, 
-   "label": "Tax ID 2", 
-   "max_length": 0, 
-   "max_value": 0, 
-   "read_only": 0, 
-   "reqd": 0
+   "reqd": 1
   }, 
   {
    "fieldname": "", 
@@ -89,19 +61,85 @@
    "reqd": 0
   }, 
   {
-   "fieldtype": "Data", 
+   "description": "", 
+   "fieldname": "customer_group", 
+   "fieldtype": "Link", 
    "hidden": 0, 
-   "label": "Tax ID 3", 
+   "label": "Customer Group", 
+   "max_length": 0, 
+   "max_value": 0, 
+   "options": "Customer Group", 
+   "read_only": 1, 
+   "reqd": 1
+  }, 
+  {
+   "description": "", 
+   "fieldname": "territory", 
+   "fieldtype": "Link", 
+   "hidden": 0, 
+   "label": "Territory", 
+   "max_length": 0, 
+   "max_value": 0, 
+   "options": "Territory", 
+   "read_only": 1, 
+   "reqd": 1
+  }, 
+  {
+   "fieldname": "", 
+   "fieldtype": "Section Break", 
+   "hidden": 0, 
+   "label": "Taxes & MEV", 
    "max_length": 0, 
    "max_value": 0, 
    "read_only": 0, 
    "reqd": 0
   }, 
   {
+   "fieldname": "tax_id", 
    "fieldtype": "Data", 
    "hidden": 0, 
-   "label": "MEV", 
+   "label": "TPS", 
    "max_length": 0, 
+   "max_value": 0, 
+   "read_only": 0, 
+   "reqd": 1
+  }, 
+  {
+   "fieldname": "tax_id_2", 
+   "fieldtype": "Data", 
+   "hidden": 0, 
+   "label": "TVQ", 
+   "max_length": 0, 
+   "max_value": 0, 
+   "read_only": 0, 
+   "reqd": 1
+  }, 
+  {
+   "fieldname": "", 
+   "fieldtype": "Column Break", 
+   "hidden": 0, 
+   "max_length": 0, 
+   "max_value": 0, 
+   "read_only": 0, 
+   "reqd": 0
+  }, 
+  {
+   "fieldname": "tax_id_3", 
+   "fieldtype": "Data", 
+   "hidden": 0, 
+   "label": "Tax - Other", 
+   "max_length": 0, 
+   "max_value": 0, 
+   "read_only": 0, 
+   "reqd": 0
+  }, 
+  {
+   "description": "Quebec only", 
+   "fieldname": "mev", 
+   "fieldtype": "Data", 
+   "hidden": 0, 
+   "label": "Code d'Acc\u00e8s MEV", 
+   "max_length": 6, 
    "max_value": 0, 
    "read_only": 0, 
    "reqd": 0
@@ -167,7 +205,7 @@
    "max_value": 0, 
    "options": "\nYes\nNo", 
    "read_only": 0, 
-   "reqd": 0
+   "reqd": 1
   }, 
   {
    "fieldname": "opening_date", 
@@ -177,18 +215,18 @@
    "max_length": 0, 
    "max_value": 0, 
    "read_only": 0, 
-   "reqd": 0
+   "reqd": 1
   }, 
   {
    "fieldname": "company_has_internet_access", 
    "fieldtype": "Select", 
    "hidden": 0, 
-   "label": "Company Has Internet Access", 
+   "label": "Internet Access", 
    "max_length": 0, 
    "max_value": 0, 
    "options": "\nYes\nNo", 
    "read_only": 0, 
-   "reqd": 0
+   "reqd": 1
   }, 
   {
    "fieldname": "", 
@@ -208,7 +246,7 @@
    "max_value": 0, 
    "options": "\nA\nB\nC\nD\nE\nF\nG\nH\nOther", 
    "read_only": 0, 
-   "reqd": 0
+   "reqd": 1
   }, 
   {
    "fieldname": "desired_installation_date", 
@@ -218,7 +256,7 @@
    "max_length": 0, 
    "max_value": 0, 
    "read_only": 0, 
-   "reqd": 0
+   "reqd": 1
   }, 
   {
    "fieldname": "menu_file", 
@@ -227,6 +265,26 @@
    "label": "Menu File", 
    "max_length": 0, 
    "max_value": 0, 
+   "read_only": 0, 
+   "reqd": 0
+  }, 
+  {
+   "fieldname": "", 
+   "fieldtype": "Section Break", 
+   "hidden": 0, 
+   "label": "Account", 
+   "max_length": 0, 
+   "max_value": 0, 
+   "read_only": 0, 
+   "reqd": 0
+  }, 
+  {
+   "fieldtype": "HTML", 
+   "hidden": 0, 
+   "label": "Change Password", 
+   "max_length": 0, 
+   "max_value": 0, 
+   "options": "<a href=\"https://en-staging.clusterpos.com/update-password\">Change Password - Changement mot de passe</a>", 
    "read_only": 0, 
    "reqd": 0
   }

@@ -103,6 +103,52 @@ def on_lead_onupdate(doc, handler=None):
 				'assigned_by': 'Administrator'
 			})
 
+def on_customer_onload(doc, handler=None):
+	'''Append default address and contact data to the table'''
+	if doc.get('__onload'):
+		onload = doc.get('__onload')
+		for lst, target in ((onload.addr_list, "address"), (onload.contact_list, "contacts")):
+			for row in lst:
+				nrow = row.copy()
+				name = nrow.pop("name")
+				if target == "address":
+					nrow["address_id"] = name
+				else:
+					nrow["contact_id"] = name
+				doc.append(target, nrow)
+
+	if not doc.is_new():
+		doc.customer = doc.name
+
+def on_customer_validate(doc, handler=None):
+	if doc.is_new():
+		return
+
+	for contact in doc.contacts:
+		contact = contact.as_dict()
+		if contact.contact_id and frappe.db.exists("Contact", contact.contact_id):
+			d = frappe.get_doc("Contact", contact.contact_id)
+		else:
+			d = frappe.new_doc("Contact")
+			d.append("links", {"link_doctype": "Customer", "link_name": doc.name})
+		for f in ['first_name', 'last_name', 'email_id', 'status', 'phone', 'department', 'designation']:
+			setattr(d, f, contact[f])
+		d.save(ignore_permissions=True)
+
+	for address in doc.address:
+		address = address.as_dict()
+		if address.address_id and frappe.db.exists("Address", address.address_id):
+			d = frappe.get_doc("Address", address.address_id)
+		else:
+			d = frappe.new_doc("Address")
+			d.append("links", {"link_doctype": "Customer", "link_name": doc.name})
+		for f in ['address_type', 'address_line1', 'city', 'pincode', 'email_id', 'phone']:
+			setattr(d, f, address[f])
+		d.save(ignore_permissions=True)
+
+	doc.contacts = []
+	doc.address = []
+
 
 def on_delivery_note_onsubmit(doc, handler):
 	'''Makes a new invoice when delivery note submitted'''
