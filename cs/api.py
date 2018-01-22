@@ -264,9 +264,29 @@ def make_return(customer, item_code, serial_no, warehouse,
 		ste.run_method('get_missing_values')
 		ste.run_method('save')
 		ste.run_method('submit')
-
 		msgs.append(frappe._('New Stock Entry `{0}` created!').format(ste.name))
 
+		_dn = frappe.new_doc('Delivery Note').update({
+			'posting_date': today(),
+			'customer': customer,
+			'company': company,
+			'project': project,
+			'items': [
+				{
+					'item_code': item_code,
+					'qty': 1,
+					'uom': uom,
+					'stock_uom': uom,
+					'conversion_factor': 1.0,
+					'serial_no': serial_no,
+					'allow_zero_valuation_rate': 1,
+					'warehouse': warehouse
+				}
+			]
+		})
+		_dn.run_method('get_missing_values')
+		_dn.run_method('save')
+		_dn.run_method('submit')
 
 	filters = {
 		'docstatus': 1,
@@ -279,12 +299,13 @@ def make_return(customer, item_code, serial_no, warehouse,
 			filters['parenttype'] = ['in', ['Delivery Note', 'Sales Invoice']]
 		delivered, dt = frappe.db.get_value(odt, filters=filters, 
 			fieldname=fields) or (None, None)
-		
+
 		if delivered:
 			if dt == "Sales Invoice":
 				if not frappe.db.get_value('Sales Invoice', delivered, 'update_stock'):
 					continue
-			break
+			elif not frappe.db.exists(dt, {'return_against': delivered}):
+				break
 	
 	if delivered:
 		dn = frappe.get_doc(dt, delivered)	
@@ -329,7 +350,7 @@ def make_return(customer, item_code, serial_no, warehouse,
 			fieldname=fields) or (None, None)
 
 		if returned:		
-			frappe.throw(_('The serial no `{0}` was already swapped!').format(serial_no))
+			frappe.throw(frappe._('The serial no `{0}` was already swapped!').format(serial_no))
 	
 	if dt == "Delivery Note":
 		rt = make_delivery_return(dn.name)
