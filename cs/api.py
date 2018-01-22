@@ -302,8 +302,9 @@ def make_return(customer, item_code, serial_no, warehouse,
 
 		if delivered:
 			if dt == "Sales Invoice":
-				if not frappe.db.get_value('Sales Invoice', delivered, 'update_stock'):
+				if not int(frappe.db.get_value('Sales Invoice', delivered, 'update_stock')):
 					continue
+				break
 			elif not frappe.db.exists(dt, {'return_against': delivered}):
 				break
 	
@@ -357,19 +358,21 @@ def make_return(customer, item_code, serial_no, warehouse,
 	elif dt == "Sales Invoice":
 		rt = make_invoice_return(dn.name)
 
-	for i, item in enumerate(rt.items):
-		if item.item_code != item_code:
-			del rt.items[i]
-		item.update({
-			'item_code': item_code,
-			'qty': -1,
-			'rate': flt(credit_amount),
-			'amount': -flt(credit_amount),
-			'uom': uom,
-			'stock_uom': uom,
-			'conversion_factor': 1.0,
-			'serial_no': serial_no
-		})
+	items, rt.items = rt.items, []
+
+	for i, item in enumerate(items):
+		if item.item_code == item_code:
+			item.update({
+				'item_code': item_code,
+				'qty': -1,
+				'rate': flt(credit_amount),
+				'amount': -flt(credit_amount),
+				'uom': uom,
+				'stock_uom': uom,
+				'conversion_factor': 1.0,
+				'serial_no': serial_no
+			})
+			rt.append('items', item)
 
 	if not rt.items:
 		rt.append('items', {
