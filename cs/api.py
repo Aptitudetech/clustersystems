@@ -374,7 +374,8 @@ def make_return(customer, item_code, serial_no, warehouse,
 				'uom': uom,
 				'stock_uom': uom,
 				'conversion_factor': 1.0,
-				'serial_no': serial_no
+				'serial_no': serial_no,
+				'warehouse': warehouse
 			})
 			if dt == "Sales Invoice":
 				item.sales_order = None
@@ -389,7 +390,8 @@ def make_return(customer, item_code, serial_no, warehouse,
 			'uom': uom,
 			'stock_uom': uom,
 			'conversion_factor': 1.0,
-			'serial_no': serial_no
+			'serial_no': serial_no,
+			'warehouse': warehouse
 		})
 		if dt == "Sales Invoice":
 			rt.items[0].sales_order = None
