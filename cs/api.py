@@ -287,6 +287,10 @@ def make_return(customer, item_code, serial_no, warehouse,
 		_dn.run_method('get_missing_values')
 		_dn.run_method('save')
 		_dn.run_method('submit')
+	sn_customer = frappe.db.get_value('Serial No', serial_no, 'customer')
+	if sn_customer and sn_customer != customer:
+		frappe.throw(frappe._("The Serial No {0} doesn't belong to the customer {1}").format(
+			serial_no, customer))
 
 	filters = {
 		'docstatus': 1,
