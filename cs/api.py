@@ -372,6 +372,8 @@ def make_return(customer, item_code, serial_no, warehouse,
 				'conversion_factor': 1.0,
 				'serial_no': serial_no
 			})
+			if dt == "Sales Invoice":
+				item.sales_order = None
 			rt.append('items', item)
 
 	if not rt.items:
@@ -385,15 +387,27 @@ def make_return(customer, item_code, serial_no, warehouse,
 			'conversion_factor': 1.0,
 			'serial_no': serial_no
 		})
+		if dt == "Sales Invoice":
+			rt.items[0].sales_order = None
 
-	rt.run_method('get_missing_values')
-	rt.run_method('save')
-	rt.run_method('submit')
+	try:
+		rt.run_method('get_missing_values')
+		rt.run_method('save')
+		rt.run_method('submit')
+	except frappe.ValidationError, e:
+		frappe.clear_messages()
+		if 'Closed' in str(e):
+			frappe.throw(frappe._("The Serial Number {0} doesn't belong to the customer {1}").format(
+				serial_no, customer))
+		raise e
 
 
 	if reconcile_against is not None and \
 		frappe.db.exists("Delivery Note", reconcile_against):
 		if dt == "Sales Invoice":
+			outstanding_amount = abs(rt.get('rounded_total'))
+			if outstanding_amount > credit_amount:
+				credit_amount = outstanding_amount
 			inv = make_sales_invoice(reconcile_against)
 			inv.items[0].update({
 				'rate': flt(credit_amount),
@@ -416,7 +430,7 @@ def make_return(customer, item_code, serial_no, warehouse,
 		
 
 	msgs.append(frappe._('New Return `{0}` created!').format(rt.name))
-	if dn.doctype == 'Delivery Note' or frappe.db.get_value(dn.doctype, dn.name, 'outstanding_amount') == 0:
+	if dn.doctype == 'Delivery Note':
 		dn.update_status('Closed')
 
 	if msgs:
