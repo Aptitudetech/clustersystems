@@ -416,8 +416,7 @@ def make_return(customer, item_code, serial_no, warehouse,
 		
 
 	msgs.append(frappe._('New Return `{0}` created!').format(rt.name))
-
-	if dn.grand_total == 0:
+	if dn.doctype == 'Delivery Note' or frappe.db.get_value(dn.doctype, dn.name, 'outstanding_amount') == 0:
 		dn.update_status('Closed')
 
 	if msgs:
