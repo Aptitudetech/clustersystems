@@ -127,6 +127,9 @@ doc_events = {
 		]
 	},
 	"Sales Invoice": {
+		"validate": [
+			"cs.events.on_sales_invoice_validate"
+		],
 		"on_submit": [
 			"cs.events.on_sales_invoice_onsubmit"
 		]

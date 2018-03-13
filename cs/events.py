@@ -300,7 +300,7 @@ def on_project_validate(doc, handler=None):
 def on_stock_entry_on_submit(doc, handler=None):
 	warehouse_for_loaner = frappe.defaults.get_global_default("warehouse_for_loaner")
 	if not warehouse_for_loaner:
-		frappe.throw(frappe._("You must first configure the ` Warehouse for Loaner` option in `Cluster System Settings` before you can continue"))
+		frappe.throw(frappe._("You must first configure the `Warehouse for Loaner` option in `Cluster System Settings` before you can continue"))
 
 	if doc.purpose == "Material Transfer":
 		for row in doc.items:
@@ -316,6 +316,21 @@ def on_stock_entry_on_submit(doc, handler=None):
 						'customer': customer,
 						'customer_name': customer_name
 					})
+
+def on_sales_invoice_validate(doc, handler=None):
+
+	if doc.flags and doc.flags.ignore_project_validation:
+		return
+
+	if doc.get('project'):
+		if frappe.db.get_value('Project', doc.project, 'template_type') == 'Swap in Warranty':
+			frappe.throw(frappe._('You are not allowed to create a Sales Invoice for a project of type "Swap in Warranty"'))
+
+	for item in doc.items:
+		if item.get('delivery_note'):
+			project = frappe.db.get_value('Delivery Note', item.delivery_note, 'project')
+			if project and frappe.db.get_value('Project', project, 'template_type') == 'Swap in Warranty':
+				frappe.throw(frappe._('You are not allowed to pull items on a Sales Invoice from a Delivery Note for a project of type "Swap in Warranty"'))
 
 
 def on_sales_invoice_onsubmit(doc, handler=None):

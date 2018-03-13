@@ -366,6 +366,7 @@ def make_return(customer, item_code, serial_no, warehouse,
 					item.update({ag_df: None, ag_detail: None})
 	elif dt == "Sales Invoice":
 		rt = make_invoice_return(dn.name)
+		rt.flags.ignore_project_validation = True
 		for item in rt.items:
 			for ag_dt, ag_df, ag_detail in (('Sales Order', 'sales_order', 'so_detail'), 
 							('Delivery Note', 'delivery_note', 'dn_detail')):
@@ -422,11 +423,10 @@ def make_return(customer, item_code, serial_no, warehouse,
 
 	if reconcile_against is not None and \
 		frappe.db.exists("Delivery Note", reconcile_against):
-		if frappe.db.get_value('Delivery Note', reconcile_against, 'per_billed') == 0:
-                        frappe.throw(frappe._('The Delivery Note {0} is not billed yet!'
-                                '<br> You need to bill it first to continue.').format(reconcile_against))
+		per_billed = frappe.db.get_value('Delivery Note', reconcile_against, 'per_billed')
 
-		if dt == "Sales Invoice":
+		if dt == "Sales Invoice" \
+			and (per_billed or delivered and int(frappe.db.get_value(dt, delivered, 'update_stock'))):
 			outstanding_amount = abs(rt.get('rounded_total'))
 			if outstanding_amount > credit_amount:
 				credit_amount = outstanding_amount
@@ -435,6 +435,7 @@ def make_return(customer, item_code, serial_no, warehouse,
 				frappe.throw('OOPS: {!r}'.format(credit_amount))
 
 			inv = make_sales_invoice(reconcile_against)
+			inv.flags.ignore_project_validation = True
 			inv.items[0].update({
 				'rate': flt(credit_amount),
 				'amount': flt(credit_amount)
