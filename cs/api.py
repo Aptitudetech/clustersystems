@@ -359,8 +359,18 @@ def make_return(customer, item_code, serial_no, warehouse,
 	
 	if dt == "Delivery Note":
 		rt = make_delivery_return(dn.name)
+		for item in rt.items:
+			for ag_dt, ag_df, ag_detail in (('Sales Order', 'against_sales_order', 'so_detail'),
+							('Sales Invoice', 'against_sales_invoice', 'si_detail')):
+				if item.get(ag_df) and frappe.db.get_value(ag_dt, ag_df, 'status') == 'Closed':
+					item.update({ag_df: None, ag_detail: None})
 	elif dt == "Sales Invoice":
 		rt = make_invoice_return(dn.name)
+		for item in rt.items:
+			for ag_dt, ag_df, ag_detail in (('Sales Order', 'sales_order', 'so_detail'), 
+							('Delivery Note', 'delivery_note', 'dn_detail')):
+				if item.get(ag_df) and frappe.db.get_value(ag_dt, ag_df, 'status') == 'Closed':
+					item.update({ag_df: None, ag_detail: None})
 
 	items, rt.items = rt.items, []
 
@@ -395,6 +405,8 @@ def make_return(customer, item_code, serial_no, warehouse,
 		})
 		if dt == "Sales Invoice":
 			rt.items[0].sales_order = None
+		if rt.get('credits'):
+			rt.credits = []
 
 	try:
 		rt.run_method('get_missing_values')
@@ -410,10 +422,18 @@ def make_return(customer, item_code, serial_no, warehouse,
 
 	if reconcile_against is not None and \
 		frappe.db.exists("Delivery Note", reconcile_against):
+		if frappe.db.get_value('Delivery Note', reconcile_against, 'per_billed') == 0:
+                        frappe.throw(frappe._('The Delivery Note {0} is not billed yet!'
+                                '<br> You need to bill it first to continue.').format(reconcile_against))
+
 		if dt == "Sales Invoice":
 			outstanding_amount = abs(rt.get('rounded_total'))
 			if outstanding_amount > credit_amount:
 				credit_amount = outstanding_amount
+
+			if not flt(credit_amount):
+				frappe.throw('OOPS: {!r}'.format(credit_amount))
+
 			inv = make_sales_invoice(reconcile_against)
 			inv.items[0].update({
 				'rate': flt(credit_amount),
