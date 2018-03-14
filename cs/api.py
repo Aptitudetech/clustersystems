@@ -362,7 +362,7 @@ def make_return(customer, item_code, serial_no, warehouse,
 		for item in rt.items:
 			for ag_dt, ag_df, ag_detail in (('Sales Order', 'against_sales_order', 'so_detail'),
 							('Sales Invoice', 'against_sales_invoice', 'si_detail')):
-				if item.get(ag_df) and frappe.db.get_value(ag_dt, ag_df, 'status') == 'Closed':
+				if item.get(ag_df):
 					item.update({ag_df: None, ag_detail: None})
 	elif dt == "Sales Invoice":
 		rt = make_invoice_return(dn.name)
@@ -370,7 +370,7 @@ def make_return(customer, item_code, serial_no, warehouse,
 		for item in rt.items:
 			for ag_dt, ag_df, ag_detail in (('Sales Order', 'sales_order', 'so_detail'), 
 							('Delivery Note', 'delivery_note', 'dn_detail')):
-				if item.get(ag_df) and frappe.db.get_value(ag_dt, ag_df, 'status') == 'Closed':
+				if item.get(ag_df):
 					item.update({ag_df: None, ag_detail: None})
 
 	items, rt.items = rt.items, []
@@ -409,16 +409,9 @@ def make_return(customer, item_code, serial_no, warehouse,
 		if rt.get('credits'):
 			rt.credits = []
 
-	try:
-		rt.run_method('get_missing_values')
-		rt.run_method('save')
-		rt.run_method('submit')
-	except frappe.ValidationError, e:
-		frappe.clear_messages()
-		if 'Closed' in str(e):
-			frappe.throw(frappe._("The Serial Number {0} doesn't belong to the customer {1}").format(
-				serial_no, customer))
-		raise e
+	rt.run_method('get_missing_values')
+	rt.run_method('save')
+	rt.run_method('submit')
 
 
 	if reconcile_against is not None and \
