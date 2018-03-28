@@ -191,7 +191,7 @@ fixtures = [
 	{"dt": "Standard Reply"},
 	{"dt": "Website Theme", "filters": {"name": "Cluster"}},
 	{"dt": "Portal Settings"},
-	{"dt": "Custom Field", "filters": {"dt": "Customer"}},
+	{"dt": "Custom Field", "filters": {"dt": ["in", ["Customer", "Delivery Note Item"]]	}},
 	{"dt": "Website Script"}
 ]
 
