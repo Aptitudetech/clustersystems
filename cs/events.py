@@ -322,15 +322,16 @@ def on_sales_invoice_validate(doc, handler=None):
 	if doc.flags and doc.flags.ignore_project_validation:
 		return
 
-	if doc.get('project'):
-		if frappe.db.get_value('Project', doc.project, 'template_type') == 'Swap in Warranty':
-			frappe.throw(frappe._('You are not allowed to create a Sales Invoice for a project of type "Swap in Warranty"'))
-
 	for item in doc.items:
 		if item.get('delivery_note'):
 			project = frappe.db.get_value('Delivery Note', item.delivery_note, 'project')
-			if project and frappe.db.get_value('Project', project, 'template_type') == 'Swap in Warranty':
-				frappe.throw(frappe._('You are not allowed to pull items on a Sales Invoice from a Delivery Note for a project of type "Swap in Warranty"'))
+			if project \
+				and frappe.db.get_value('Project', project, 'template_type') == 'Swap in Warranty' \
+				and cint(frappe.db.get_value('Delivery Note Item', item.dn_detail, 'damaged')) == 0:
+				doc.items.remove(item)
+	
+	if not doc.items:
+		frappe.throw(frappe._('No Invoice allowed for "Swap in Warranty"'))
 
 
 def on_sales_invoice_onsubmit(doc, handler=None):

@@ -341,6 +341,11 @@ def make_return(customer, item_code, serial_no, warehouse,
 		dn.run_method('save')
 		dn.run_method('submit')
 		msgs.append(frappe._('New Delivery Note `{0}` created!').format(dn.name))
+	elif (not (delivered and dn)) and frappe.db.exists('Serial No', serial_no):
+		frappe.throw(frappe._('The Serial No {0} is presently at the {1} warehouse and cannot be used to complete the process').format(
+			serial_no,
+			frappe.db.get_value('Serial No', serial_no, 'warehouse')
+		))
 	
 	filters = {
 		'docstatus': 1,
