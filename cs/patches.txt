@@ -1,2 +1,3 @@
 cs.patches.deprecate_process_quote_setup
 cs.patches.update_missing_customer_info
+cs.patches.update_clearence_info
