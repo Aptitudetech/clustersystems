@@ -13,7 +13,7 @@ def execute():
             'docstatus': 1,
             'posting_date': ['<=', '2018-11-30'],
             fd: ['!=', None]
-        }, fields=['name', 'posting_date'])
+        }, or_filters={'clearance_date': ['in', ['', None]]}, fields=['name', 'posting_date'])
 
         for row in tr_list:
             frappe.db.set_value(dt, row.name, 'clearance_date', row.posting_date)

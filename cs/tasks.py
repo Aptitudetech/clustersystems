@@ -20,7 +20,7 @@ def get_standard_reply( template_name, doc, language=None, **kwargs  ):
 	kw = doc.as_dict()
 	kw.update(kwargs)
 
-	standard_reply = frappe.get_doc('Standard Reply', template_name)
+	standard_reply = frappe.get_doc('Email Template', template_name)
 	return {
 		'subject': frappe.render_template( _(standard_reply.subject, language), kw ),
 		'message': frappe.render_template( _(standard_reply.response, language), kw )

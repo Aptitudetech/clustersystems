@@ -89,7 +89,7 @@
    "label": "Reminder Message", 
    "length": 0, 
    "no_copy": 0, 
-   "options": "Standard Reply", 
+   "options": "Email Template", 
    "permlevel": 0, 
    "precision": "", 
    "print_hide": 0, 
