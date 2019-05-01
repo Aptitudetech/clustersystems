@@ -229,7 +229,7 @@ def on_project_onload(doc, handler=None):
 	if doc.get('name'):
 		doc.tasks = []
 		i = 1
-		for task in frappe.get_all('Task', '*', {'project': doc.name}, order_by='`order` asc'):
+		for task in frappe.get_all('Task', '*', {'project': doc.name}, order_by='`order_idx` asc'):
 			task_map = {
 				"title": task.subject,
 				"status": task.status,
@@ -248,6 +248,11 @@ def on_project_onload(doc, handler=None):
 
 def on_project_validate(doc, handler=None):
 	from frappe.desk.form import assign_to
+
+	if doc.project_type == "Template":
+		doc.status = "Open"
+		for task in doc.get('tasks'):
+			task.status = "Open"
 
 	settings = frappe.get_doc('Cluster System Settings', 'Cluster System Settings')
 	if settings.close_project_after:

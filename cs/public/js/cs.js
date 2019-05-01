@@ -145,9 +145,10 @@ frappe.ui.form.on('Opportunity', {
 });
 
 frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
-    if (frm.doc.project_type === "Template" && frappe.user_roles.includes("Cluster - Project User")) {
+    if (frm.doc.project_type === "Template" && (frappe.user_roles.includes("Cluster - Project User") && !frappe.user_roles.includes("System Manager"))) {
         frm.disable_save();
         frm.read_only(true);
+        frm.refresh_fields();
     }
     if (frm.doc.status == 'Open' && frm.doc.template_type === frappe.defaults.get_global_default('template_for_swap') 
         && frm.doc.__onload && !frm.doc.__onload.all_dn_closed){
