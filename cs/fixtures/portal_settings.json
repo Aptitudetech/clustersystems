@@ -126,9 +126,65 @@
     "route": "/timesheets", 
     "target": null, 
     "title": "Timesheets"
+   }, 
+   {
+    "enabled": 1, 
+    "reference_doctype": "Lab Test", 
+    "role": "Patient", 
+    "route": "/lab-test", 
+    "target": null, 
+    "title": "Lab Test"
+   }, 
+   {
+    "enabled": 1, 
+    "reference_doctype": "Consultation", 
+    "role": "Patient", 
+    "route": "/prescription", 
+    "target": null, 
+    "title": "Prescription"
+   }, 
+   {
+    "enabled": 1, 
+    "reference_doctype": "Patient Appointment", 
+    "role": "Patient", 
+    "route": "/patient-appointments", 
+    "target": null, 
+    "title": "Patient Appointment"
+   }, 
+   {
+    "enabled": 1, 
+    "reference_doctype": "Newsletter", 
+    "role": null, 
+    "route": "/newsletters", 
+    "target": null, 
+    "title": "Newsletter"
+   }, 
+   {
+    "enabled": 1, 
+    "reference_doctype": "Student Admission", 
+    "role": null, 
+    "route": "/admissions", 
+    "target": null, 
+    "title": "Admission"
+   }, 
+   {
+    "enabled": 1, 
+    "reference_doctype": "Grant Application", 
+    "role": "Non Profit Portal User", 
+    "route": "/grant-application", 
+    "target": null, 
+    "title": "Grant Application"
+   }, 
+   {
+    "enabled": 1, 
+    "reference_doctype": "Chapter", 
+    "role": null, 
+    "route": "/chapters", 
+    "target": null, 
+    "title": "Chapter"
    }
   ], 
-  "modified": "2017-12-06 23:01:46.156409", 
+  "modified": "2019-03-05 18:37:01.987613", 
   "name": "Portal Settings"
  }
 ]
