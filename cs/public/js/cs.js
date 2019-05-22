@@ -145,7 +145,9 @@ frappe.ui.form.on('Opportunity', {
 });
 
 frappe.ui.form.on('Project', 'refresh', function(frm, cdt, cdn){
-    if (frm.doc.project_type === "Template" && frappe.user_roles.includes("Cluster - Project User")) {
+    if (frm.doc.project_type === "Template" && 
+	(frappe.user_roles.includes("Cluster - Project User") &&
+	!frappe.user_roles.includes("System Manager"))) {
         frm.disable_save();
         frm.read_only(true);
     }
