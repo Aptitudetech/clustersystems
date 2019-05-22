@@ -3,6 +3,9 @@
   "custom_menu": [
    {
     "enabled": 1, 
+    "parent": "Portal Settings", 
+    "parentfield": "custom_menu", 
+    "parenttype": "Portal Settings", 
     "reference_doctype": "Customer", 
     "role": "Customer", 
     "route": "/customer-profile", 
@@ -17,6 +20,9 @@
   "menu": [
    {
     "enabled": 1, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
     "reference_doctype": "Project", 
     "role": null, 
     "route": "/project", 
@@ -25,6 +31,9 @@
    }, 
    {
     "enabled": 0, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
     "reference_doctype": "Request for Quotation", 
     "role": "Supplier", 
     "route": "/rfq", 
@@ -33,6 +42,9 @@
    }, 
    {
     "enabled": 1, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
     "reference_doctype": "Sales Order", 
     "role": "Customer", 
     "route": "/orders", 
@@ -41,6 +53,9 @@
    }, 
    {
     "enabled": 1, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
     "reference_doctype": "Sales Invoice", 
     "role": "Customer", 
     "route": "/invoices", 
@@ -49,6 +64,9 @@
    }, 
    {
     "enabled": 1, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
     "reference_doctype": "Delivery Note", 
     "role": "Customer", 
     "route": "/shipments", 
@@ -57,6 +75,9 @@
    }, 
    {
     "enabled": 1, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
     "reference_doctype": "Issue", 
     "role": "Customer", 
     "route": "/issues", 
@@ -65,6 +86,9 @@
    }, 
    {
     "enabled": 1, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
     "reference_doctype": "Address", 
     "role": null, 
     "route": "/addresses", 
@@ -73,6 +97,9 @@
    }, 
    {
     "enabled": 0, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
     "reference_doctype": "Course", 
     "role": "Student", 
     "route": "/course", 
@@ -81,6 +108,9 @@
    }, 
    {
     "enabled": 0, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
     "reference_doctype": "Assessment Plan", 
     "role": "Student", 
     "route": "/assessment", 
@@ -89,6 +119,9 @@
    }, 
    {
     "enabled": 0, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
     "reference_doctype": "Fees", 
     "role": "Student", 
     "route": "/fees", 
@@ -97,6 +130,9 @@
    }, 
    {
     "enabled": 0, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
     "reference_doctype": "Supplier Quotation", 
     "role": "Supplier", 
     "route": "/supplier-quotations", 
@@ -105,6 +141,9 @@
    }, 
    {
     "enabled": 0, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
     "reference_doctype": "Quotation", 
     "role": "Customer", 
     "route": "/quotes", 
@@ -113,6 +152,9 @@
    }, 
    {
     "enabled": 1, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
     "reference_doctype": "Quotation", 
     "role": "Customer", 
     "route": "/quotations", 
@@ -121,14 +163,97 @@
    }, 
    {
     "enabled": 0, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
     "reference_doctype": "Timesheet", 
     "role": "Customer", 
     "route": "/timesheets", 
     "target": null, 
     "title": "Timesheets"
+   }, 
+   {
+    "enabled": 1, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
+    "reference_doctype": "Patient", 
+    "role": "Patient", 
+    "route": "/personal-details", 
+    "target": null, 
+    "title": "Personal Details"
+   }, 
+   {
+    "enabled": 1, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
+    "reference_doctype": "Lab Test", 
+    "role": "Patient", 
+    "route": "/lab-test", 
+    "target": null, 
+    "title": "Lab Test"
+   }, 
+   {
+    "enabled": 1, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
+    "reference_doctype": "Patient Encounter", 
+    "role": "Patient", 
+    "route": "/prescription", 
+    "target": null, 
+    "title": "Prescription"
+   }, 
+   {
+    "enabled": 1, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
+    "reference_doctype": "Patient Appointment", 
+    "role": "Patient", 
+    "route": "/patient-appointments", 
+    "target": null, 
+    "title": "Patient Appointment"
+   }, 
+   {
+    "enabled": 1, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
+    "reference_doctype": "Newsletter", 
+    "role": null, 
+    "route": "/newsletters", 
+    "target": null, 
+    "title": "Newsletter"
+   }, 
+   {
+    "enabled": 1, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
+    "reference_doctype": "Student Admission", 
+    "role": null, 
+    "route": "/admissions", 
+    "target": null, 
+    "title": "Admission"
+   }, 
+   {
+    "enabled": 1, 
+    "parent": "Portal Settings", 
+    "parentfield": "menu", 
+    "parenttype": "Portal Settings", 
+    "reference_doctype": "Certification Application", 
+    "role": null, 
+    "route": "/certification", 
+    "target": null, 
+    "title": "Certification"
    }
   ], 
-  "modified": "2017-12-06 23:01:46.156409", 
-  "name": "Portal Settings"
+  "modified": "2019-05-21 23:49:42.371307", 
+  "name": "Portal Settings", 
+  "parent": null, 
+  "parentfield": null, 
+  "parenttype": null
  }
 ]

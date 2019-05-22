@@ -4,6 +4,9 @@
   "doctype": "Website Script", 
   "javascript": "$(document).on('ready', function(){\n    $('.navbar-brand.ellipsis').remove();\n});\nvar myEl = document.querySelectorAll('.navUser-item > span, a[href=\"/me\"]');\nvar myE2 = document.querySelectorAll('.navUser-item > span, a[href=\"/third_party_apps\"]');\n\nfor (var el of myEl){\n    el.style.display = 'none';\n}\nfor (var e2 of myE2){\n    e2.style.display = 'none';\n}", 
   "modified": "2017-12-14 09:15:28.271391", 
-  "name": "Website Script"
+  "name": "Website Script", 
+  "parent": null, 
+  "parentfield": null, 
+  "parenttype": null
  }
 ]

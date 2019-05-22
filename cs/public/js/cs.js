@@ -24,7 +24,7 @@ frappe.ui.form.on('Quotation', {
 			'callback': function(res){
 				if (res && res.exc) return;
 				frappe.confirm(format('<center>{0}<br><br>{1}</center>',
-					[__('Process Successfull'), format(
+					[__('Process Successfull'), frappe.utils.format(
 						__('Do you want to continue to the Project `{0}`'),
 						[res.message.project_name])]
 					),
@@ -80,7 +80,7 @@ frappe.ui.form.on('Quotation', {
                                 'freeze': true,
                                 'callback': function(res){
                                     if (res && !res.exc){
-                                        frappe.confirm(format('<center>{0}<br><br>{1}</center>', [
+                                        frappe.confirm(frappe.utils.format('<center>{0}<br><br>{1}</center>', [
                                             __('Process successfull'),
                                             format(__('Do you want to continue to the Project `{0}`'), 
                                             [res.message.project_name])

@@ -28,7 +28,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 
 	settings = frappe.get_doc("Cluster System Settings", "Cluster System Settings")
 
-	if doc.quotation_to == "Lead" and doc.party_name and not frappe.db.get_value("Customer", {"lead_name": doc.party_name}):
+	if doc.quotation_to == "Lead" and doc.party_name and not frappe.db.exists("Customer", {"lead_name": doc.party_name}):
 		customer = make_customer( doc.party_name )
 		customer.customer_group = customer_group
 		customer.territory = territory
@@ -37,6 +37,8 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 		if not customer.get('sales_partner') and doc.get('sales_partner'):
 			customer.sales_partner = doc.sales_partner
 		customer.insert()
+	elif doc.quotation_to == "Lead":
+		customer = frappe.get_doc("Customer", frappe.db.exists("Customer", {"lead_name": doc.party_name}))
 	else:
 		customer = frappe.get_doc("Customer", doc.party_name)
 
