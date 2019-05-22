@@ -28,8 +28,8 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 
 	settings = frappe.get_doc("Cluster System Settings", "Cluster System Settings")
 
-	if doc.lead and not frappe.db.get_value("Customer", {"lead_name": doc.lead}):
-		customer = make_customer( doc.lead )
+	if doc.quotation_to == "Lead" and doc.party_name and not frappe.db.get_value("Customer", {"lead_name": doc.party_name}):
+		customer = make_customer( doc.party_name )
 		customer.customer_group = customer_group
 		customer.territory = territory
 		customer.flags.ignore_mandatory = True
@@ -38,7 +38,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 			customer.sales_partner = doc.sales_partner
 		customer.insert()
 	else:
-		customer = frappe.get_doc("Customer", doc.customer)
+		customer = frappe.get_doc("Customer", doc.party_name)
 
 	so = make_sales_order( quote )
 	so.delivery_date = delivery_date or today()
@@ -63,12 +63,12 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 			"# " + str(frappe.db.count('Project') + 1)
 		])
 		new_project = frappe.copy_doc( base_project, True )
-		if doc.lead:
+		if doc.quotation_to == "Lead" and doc.party_name:
 			new_project.customer = frappe.db.get_value("Customer", {
-				"lead_name": doc.lead
+				"lead_name": doc.party_name
 			})
 		else:
-			new_project.customer = doc.customer
+			new_project.customer = doc.party_name
 		new_project.project_type = "External"
 		new_project.autoname = get_project_autoname( new_project, project_name )
 		new_project.project_name = project_name
@@ -162,7 +162,7 @@ def process_quote(quote, customer_group=None, territory=None, language=None, del
 		standard_reply = settings.get('welcome_template_types', 
 			{'template_type': doc.template_type})[0].standard_reply
 
-		tasks.send_wellcome_email( doc.quotation_to, doc.lead or doc.customer, standard_reply, link)
+		tasks.send_wellcome_email( doc.quotation_to, doc.party_name, standard_reply, link)
 
 	return {
 		'msgs': msgs,

@@ -229,7 +229,8 @@ def on_project_onload(doc, handler=None):
 	if doc.get('name'):
 		doc.tasks = []
 		i = 1
-		for task in frappe.get_all('Task', '*', {'project': doc.name}, order_by='`order` asc'):
+		custom_fields = frappe.get_all("Custom Field", {"dt": "Project Task", "fieldname")
+		for task in frappe.get_all('Task', '*', {'project': doc.name}, order_by='`order_idx` asc'):
 			task_map = {
 				"title": task.subject,
 				"status": task.status,
@@ -238,10 +239,10 @@ def on_project_onload(doc, handler=None):
 				"task_id": task.name,
 				"description": task.descrition,
 				"task_weight": task.task_weight,
-				"idx": task.order or i
+				"idx": task.order_idx or i
 			}
 			i += 1
-			doc.map_custom_fields(task, task_map)
+			doc.map_custom_fields(task, task_map, custom_fields)
 
 			doc.append("tasks", task_map)
 
@@ -270,7 +271,7 @@ def on_project_validate(doc, handler=None):
 
 	task_close_sent = False
 	for task in doc.tasks:
-		task.order = task.idx
+		task.order_idx = task.idx
 		task_closed = None
 		if task.status == "Closed" and \
 			frappe.db.get_value('Task', task.task_id, 'status') != 'Closed' \
