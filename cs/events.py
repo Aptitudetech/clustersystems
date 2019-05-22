@@ -9,8 +9,8 @@ from frappe.utils import now_datetime, flt, today
 from cs import tasks
 
 def quotation_onload(doc, handler=None):
-	if doc.lead:
-		customer = frappe.db.get_value("Customer", {"lead_name": doc.lead})
+	if doc.quotation_to == "Lead" and doc.party_name:
+		customer = frappe.db.get_value("Customer", {"lead_name": doc.party_name})
 		doc.get("__onload").has_customer = customer
 	doc.get("__onload").has_sales_order = frappe.db.count("Sales Order Item", {
 		"prevdoc_docname": doc.name
