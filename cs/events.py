@@ -229,7 +229,7 @@ def on_project_onload(doc, handler=None):
 	if doc.get('name'):
 		doc.tasks = []
 		i = 1
-		custom_fields = frappe.get_all("Custom Field", {"dt": "Project Task", "fieldname")
+		custom_fields = frappe.get_all("Custom Field", {"dt": "Project Task"}, "fieldname")
 		for task in frappe.get_all('Task', '*', {'project': doc.name}, order_by='`order_idx` asc'):
 			task_map = {
 				"title": task.subject,
